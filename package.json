@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --remove"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@leeoniya/ufuzzy": "^1.0.18",
