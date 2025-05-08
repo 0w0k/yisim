@@ -1,7 +1,7 @@
 [submodule "public/YiXian-IconsAndNames"]
 	path = public/YiXian-IconsAndNames
 	url = https://github.com/Jayromulus/YiXian-IconsAndNames
-
-# [submodule "public/yxp_images"]
-# 	path = public/yxp_images
-# 	url = https://github.com/sharpobject/yxp_images
+	
+[submodule "public/yxp_images"]
+	path = public/yxp_images
+	url = https://github.com/0w0k/yxpImages
