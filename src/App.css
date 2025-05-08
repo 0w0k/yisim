@@ -1,0 +1,39 @@
+.app {
+  display: flex;
+  justify-content: center;
+}
+
+.main {
+  height: 1080px;
+}
+
+.deck {
+  width: 1500px;
+}
+
+.card {
+  height: 274px;
+  width: 170px;
+  cursor: pointer;
+}
+
+.bg {
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.cardname {
+  padding-left: 6px;
+  width: 170px;
+}
+
+.result {
+  min-width: 320px;
+  /* box-sizing: border-box;  */
+  overflow-y: auto;
+}
+
+.footer {
+  height: 32px;
+}

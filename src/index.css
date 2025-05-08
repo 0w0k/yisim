@@ -1,0 +1,8 @@
+body {
+  background: url('/bg.png') no-repeat fixed 50% 0;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: 70% center;
+  background-repeat: no-repeat;
+  transition: background 1.5s;
+}
