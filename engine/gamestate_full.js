@@ -1015,7 +1015,6 @@ export class Player {
     }
     reset_can_play() {
         this.cards = this.cards.slice();
-        console.log('this.cards', this.cards)
         this.can_play.length = 0;
         this.is_star_point.length = 0;
         this.can_post_action.length = 0;
@@ -1033,7 +1032,6 @@ export class Player {
         if (5 < n_cards) {
             this.is_star_point[5] = true;
         }
-        console.log('this.cards[n_cards - 1]',this.cards[n_cards - 1]);
         if (swogi[this.cards[n_cards - 1]].name === "Space Spiritual Field") {
             this.skip_one_play[n_cards - 1] = true;
         }
@@ -1065,18 +1063,11 @@ export class Player {
     }
 }
 export class GameState {
-    constructor(a, b) {
+    constructor(l, na) {
+        this.l = l;
         this.indentation = "";
-        if (a === undefined) {
-            a = new Player();
-        } else {
-            a.reset();
-        }
-        if (b === undefined) {
-            b = new Player();
-        } else {
-            b.reset();
-        }
+        const a = new Player();
+        const b = new Player();
         this.players = [a, b];
         this.output = [];
         this.used_randomness = false;
@@ -1090,11 +1081,26 @@ export class GameState {
         console.log(this.output.join("\n"));
     }
     log(str) {
-        this.output.push(this.indentation + str);
-        //console.log(this.indentation + str);
+        let result = str;
+        if (this.l.lang === 'cn') {
+
+            const cardPattern = new RegExp(names_json.map(item => item.name).join("|"), "g");
+    
+            result = str.replace(cardPattern, match => {
+              return names_json.find(item => item.name === match)?.namecn || match;
+            });
+
+            const otherPattern = new RegExp(Object.keys(this.l.cn).join("|"), "g");
+    
+            result = str.replace(otherPattern, match => {
+              return this.l.cn[match] || match;
+            });
+        }
+        console.log(this.indentation + result)
+        this.output.push(this.indentation + result);
     }
     indent() {
-        this.indentation += "  ";
+        this.indentation += "> ";
     }
     unindent() {
         this.indentation = this.indentation.substring(2);
@@ -1345,7 +1351,7 @@ export class GameState {
             return false;
         }
         this.players[player_idx].cards[card_idx] = new_card_id;
-        this.log("玩家 " + player_idx + " upgrades " + format_card(card_id) + " to " + format_card(new_card_id));
+        this.log("player " + player_idx + " upgrades " + format_card(card_id) + " to " + format_card(new_card_id));
         return true;
     }
     try_downgrade_card(player_idx, card_idx) {
@@ -1360,7 +1366,7 @@ export class GameState {
             return false;
         }
         this.players[player_idx].cards[card_idx] = new_card_id;
-        this.log("玩家 " + player_idx + " downgrades " + format_card(card_id) + " to " + format_card(new_card_id));
+        this.log("player " + player_idx + " downgrades " + format_card(card_id) + " to " + format_card(new_card_id));
         return true;
     }
     do_pact_of_equilibrium(idx) {
@@ -1495,7 +1501,7 @@ export class GameState {
         this.start_of_game_setup();
         let i = 0;
         for (; i<n; i++) {
-            this.log("回合 " + i + " 开始");
+            this.log("turn " + i + " begins");
             this.indent();
             if (i % 2 === 1) {
                 this.swap_players();
@@ -1505,7 +1511,8 @@ export class GameState {
                 this.swap_players();
             }
             this.unindent();
-            this.log("回合 " + i + " 结束");
+            this.log("turn " + i + " ends");
+            this.log("-----------------------------------");
             if (this.game_over) {
                 break;
             }
@@ -1518,7 +1525,7 @@ export class GameState {
         this.turns_taken = i;
         const winner_character_id = this.players[winner].character;
         const winner_character = CHARACTER_ID_TO_NAME[winner_character_id];
-        this.log("玩家 " + winner + " (" + winner_character_id + ") 获胜");
+        this.log("player " + winner + " (" + winner_character_id + ") wins");
     }
     sim_n_turns_zongzi(n) {
         this.start_of_game_setup();
@@ -1541,7 +1548,7 @@ export class GameState {
         this.turns_taken = i;
         const winner_character_id = this.players[winner].character;
         const winner_character = CHARACTER_ID_TO_NAME[winner_character_id];
-        this.log("玩家 " + winner + " (" + winner_character + ") 获胜");
+        this.log("player " + winner + " (" + winner_character + ") wins");
     }
     do_action(arr) {
         // the actions list is like this: [["atk", 14], ["injured", ["regain_sword_intent"]]]
@@ -2328,7 +2335,7 @@ export class GameState {
                 me.spirit_gather_citta_dharma_odd_gives_qi = !odd_gives_qi;
             }
             this.increase_idx_qi(0, qi_gain);
-            this.log("获得 " + qi_gain + " 气来自 聚灵心法");
+            this.log("gained " + qi_gain + " qi from spirit_gather_citta_dharma_stacks");
         }
     }
     do_qi_gathering_merpeople_pearl() {
@@ -2969,7 +2976,7 @@ export class GameState {
                         qi_cost -= excess_qi;
                         let unbounded_qi_hp_cost = 3 * excess_qi;
                         let unbounded_qi_physique_cost = excess_qi;
-                        this.log("玩家 0 is spending " + unbounded_qi_hp_cost + " hp and " + unbounded_qi_physique_cost + " physique to play " + format_card(card_id));
+                        this.log("player 0 is spending " + unbounded_qi_hp_cost + " hp and " + unbounded_qi_physique_cost + " physique to play " + format_card(card_id));
                         this.reduce_idx_hp(0, unbounded_qi_hp_cost, true);
                         this.reduce_idx_x_by_c(0, "physique", unbounded_qi_physique_cost);
                     }
@@ -2977,12 +2984,12 @@ export class GameState {
             }
             if (me.qi < qi_cost) {
                 this.gain_qi_to_afford_card(card.gather_qi);
-                this.log("玩家 0 获得 [气] 替换了 " + format_card(card_id) + ". 现在有 " + me.qi + "/" + qi_cost + "[气]");
+                this.log("player 0 gained qi instead of playing " + format_card(card_id) + ". They now have " + me.qi + "/" + qi_cost + " qi");
             } else {
                 me.inspiration_stacks = 0;
                 if (qi_cost > 0) {
                     this.reduce_idx_x_by_c(0, "qi", qi_cost);
-                    this.log("玩家 0 消耗了 " + qi_cost + " [气] 去使用" + format_card(card_id));
+                    this.log("player 0 spent " + qi_cost + " qi to play " + format_card(card_id));
                 }
                 if (hp_cost !== undefined) {
                     if (hp_cost > 0) {
@@ -2993,7 +3000,7 @@ export class GameState {
                             this.reduce_idx_hp(0, hp_cost, true);
                         }
                     }
-                    this.log("玩家 0 消耗了 " + hp_cost + " [生命] 去使用 " + format_card(card_id));
+                    this.log("player 0 spent " + hp_cost + " hp to play " + format_card(card_id));
                     // bounce is consumed by spending 0 hp to play mountain cleaving palms
                     // but it is not used when paying hp via unbounded qi
                     let refund_hp = false;
@@ -3003,7 +3010,7 @@ export class GameState {
                         if (this.is_crash_fist(card_id)) {
                             if (me.crash_fist_bounce_stacks > 0) {
                                 this.heal(hp_cost);
-                                this.log("玩家 0 healed " + hp_cost + " hp from crash fist bounce");
+                                this.log("player 0 healed " + hp_cost + " hp from crash fist bounce");
                                 if (swogi[card_id].name !== "Crash Fist - Continue")
                                 {
                                     me.crash_fist_bounce_stacks = 0;
@@ -3011,13 +3018,13 @@ export class GameState {
                             }
                             if (me.crash_fist_return_to_xuan_stacks > 0) {
                                 this.heal(hp_cost);
-                                this.log("玩家 0 healed " + hp_cost + " hp from crash fist return to xuan");
+                                this.log("player 0 healed " + hp_cost + " hp from crash fist return to xuan");
                             }
                         }
                     }
                 }
                 if (hp_cost === undefined && qi_cost === 0) {
-                    this.log("玩家 0 使用了 " + format_card(card_id));
+                    this.log("player 0 is playing " + format_card(card_id));
                 }
                 const card_idx = me.next_card_index;
                 this.do_finishing_touch(card_idx);
@@ -3031,7 +3038,7 @@ export class GameState {
                 if (this.check_for_death()) {
                     return;
                 }
-                this.log("玩家 0 完成了 " + format_card(card_id));
+                this.log("player 0 finished playing " + card.name);
                 this.advance_next_card_index();
                 this.do_heavenly_marrow_dance_tune_chase();
                 this.do_shadow_owl_rabbit_chase();
@@ -3076,7 +3083,7 @@ export class GameState {
         const reduced_amt = Math.min(amt, me.def);
         me.def_lost += reduced_amt;
         me.def -= reduced_amt;
-        this.log("减少了 玩家 " + idx + " def by " + reduced_amt + " to " + me.def);
+        this.log("reduced player " + idx + " def by " + reduced_amt + " to " + me.def);
         if (me.earth_spirit_cliff_stacks > 0) {
             this.reduce_idx_x_by_c(idx, "earth_spirit_cliff_stacks", 1);
             this.deal_damage_inner(reduced_amt, false, idx);
@@ -3117,9 +3124,9 @@ export class GameState {
         }
         me.hp_lost += dmg;
         me.hp -= dmg;
-        this.log("减少了 玩家 " + idx +" hp by " + dmg + " to " + me.hp);
+        this.log("reduced player " + idx +" hp by " + dmg + " to " + me.hp);
         if (me.hp <= 0 && me.pangu_axe_stacks > 0) {
-            this.log("pangu axe: 减少了 玩家 " + idx + " destiny by " + me.pangu_axe_stacks + " to " + me.destiny);
+            this.log("pangu axe: reduced player " + idx + " destiny by " + me.pangu_axe_stacks + " to " + me.destiny);
             me.destiny -= me.pangu_axe_stacks;
             me.pangu_axe_stacks = 0;
         }
@@ -3171,11 +3178,11 @@ export class GameState {
             me.hp = me.max_hp;
         }
         if (me.hp <= 0 && me.pangu_axe_stacks > 0) {
-            this.log("pangu axe: 减少了 玩家 " + idx + " destiny by " + me.pangu_axe_stacks + " to " + me.destiny);
+            this.log("pangu axe: reduced player " + idx + " destiny by " + me.pangu_axe_stacks + " to " + me.destiny);
             me.destiny -= me.pangu_axe_stacks;
             me.pangu_axe_stacks = 0;
         }
-        this.log("减少了 玩家 " + idx + " max_hp by " + amt + " to " + me.max_hp);
+        this.log("reduced player " + idx + " max_hp by " + amt + " to " + me.max_hp);
     }
     reduce_idx_force(idx, amt) {
         if (amt < 0) {
@@ -3195,7 +3202,7 @@ export class GameState {
             const dmg = me.overwhelming_power_stacks * reduced_amt;
             this.deal_damage_inner(dmg, false, idx);
         }
-        this.log("减少了 玩家 " + idx + " force by " + reduced_amt + " to " + me.force);
+        this.log("reduced player " + idx + " force by " + reduced_amt + " to " + me.force);
         if (me.force === 0) {
             const endless_force_stacks = me.endless_force_stacks;
             if (endless_force_stacks > 0) {
@@ -3215,7 +3222,7 @@ export class GameState {
             }
         }
         me.max_hp += amt;
-        this.log("increased 玩家 " + idx + " max_hp by " + amt + " to " + me.max_hp);
+        this.log("increased player " + idx + " max_hp by " + amt + " to " + me.max_hp);
     }
     increase_idx_hp(idx, amt, heal_while_dead) {
         const me = this.players[idx];
@@ -3233,7 +3240,7 @@ export class GameState {
             return 0;
         }
         if (me.metal_spirit_chokehold_stacks > 0) {
-            this.log("refusing to heal a 玩家 with metal_spirit_chokehold_stacks");
+            this.log("refusing to heal a player with metal_spirit_chokehold_stacks");
             return 0;
         }
         for (let i=0; i<me.p2_rejuvenation_stacks; i++) {
@@ -3307,7 +3314,7 @@ export class GameState {
             this.deal_damage_inner(dmg_amt, false, idx);
         }
         me.def += amt;
-        this.log("获得 " + amt + " def. Now have " + me.def + " def");
+        this.log("gained " + amt + " def. Now have " + me.def + " def");
     }
     increase_idx_penetrate(idx, amt) {
         if (amt === 0) {
@@ -3316,7 +3323,7 @@ export class GameState {
         const me = this.players[idx];
         amt += me.kun_wu_metal_ring_stacks;
         me.penetrate += amt;
-        this.log("获得 " + amt + " penetrate. Now have " + me.penetrate + " penetrate");
+        this.log("gained " + amt + " penetrate. Now have " + me.penetrate + " penetrate");
     }
     increase_idx_qi(idx, amt) {
         if (amt === 0) {
@@ -3352,7 +3359,7 @@ export class GameState {
             this.increade_idx_x_by_c(idx, "def", amt * me.spiritstat_tune_stacks);
         }
         me.qi += amt;
-        this.log("获得 " + amt + " [气] 现在有" + me.qi + " [气]");
+        this.log("gained " + amt + " qi. Now have " + me.qi + " qi");
     }
     increase_idx_force(idx, amt) {
         if (amt === 0) {
@@ -3372,7 +3379,7 @@ export class GameState {
         if (me.surge_of_qi_stacks > 0 && me.stance_is_fist) {
             this.increase_idx_x_by_c(idx, "agility", 2);
         }
-        this.log("获得 " + amt + " force. Now have " + me.force + " force");
+        this.log("gained " + amt + " force. Now have " + me.force + " force");
     }
     increase_idx_activate(idx, x, amt) {
         if (amt === 0) {
@@ -3419,7 +3426,7 @@ export class GameState {
             }
         }
         me[x] += amt;
-        this.log("获得 " + amt + " " + x + ". Now have " + me[x] + " " + x);
+        this.log("gained " + amt + " " + x + ". Now have " + me[x] + " " + x);
     }
     increase_idx_physique(idx, amt) {
         if (amt === 0) {
@@ -3429,7 +3436,7 @@ export class GameState {
         const prev = me.physique;
         me.physique += amt;
         me.physique_gained += amt;
-        this.log("获得 " + amt + " physique. Now have " + me.physique + " physique");
+        this.log("gained " + amt + " physique. Now have " + me.physique + " physique");
         this.increase_idx_max_hp(idx, amt);
         if (me.mind_body_resonance_stacks > 0) {
             this.increase_idx_def(idx, amt);
@@ -3462,7 +3469,7 @@ export class GameState {
             const dmg = amt * me.star_moon_hexagram_fan_stacks;
             this.deal_damage_inner(dmg, false, idx);
         }
-        this.log("获得 " + amt + " hexagram. Now have " + me.hexagram + " hexagram");
+        this.log("gained " + amt + " hexagram. Now have " + me.hexagram + " hexagram");
     }
     increase_idx_star_power(idx, amt) {
         if (amt === 0) {
@@ -3474,7 +3481,7 @@ export class GameState {
             const dmg = amt * me.star_moon_hexagram_fan_stacks;
             this.deal_damage_inner(dmg, false, idx);
         }
-        this.log("获得 " + amt + " star power. Now have " + me.star_power + " star power");
+        this.log("gained " + amt + " star power. Now have " + me.star_power + " star power");
     }
     increase_idx_debuff(idx, x, amt) {
         if (amt === 0) {
@@ -3522,7 +3529,7 @@ export class GameState {
             }
         }
         me[x] += amt;
-        this.log("获得 " + amt + " " + x + ". Now have " + me[x] + " " + x);
+        this.log("gained " + amt + " " + x + ". Now have " + me[x] + " " + x);
     }
     increase_idx_x_by_c(idx, x, c) {
         if (c === 0) {
@@ -3567,7 +3574,7 @@ export class GameState {
             return this.increase_idx_debuff(idx, x, c);
         }
         me[x] += c;
-        this.log("获得 " + c + " " + x + ". Now have " + me[x] + " " + x);
+        this.log("gained " + c + " " + x + ". Now have " + me[x] + " " + x);
     }
     reduce_idx_x_by_c(idx, x, c) {
         if (c === 0) {
@@ -4103,6 +4110,7 @@ export class GameState {
         this.players[0].ignore_decrease_atk = true;
     }
     check_for_death() {
+        //return false;
         const me = this.players[0];
         const enemy = this.players[1];
         while (me.hp <= 0 ||
@@ -4122,7 +4130,7 @@ export class GameState {
         if (me.destiny <= 0) {
             me.hp = 0;
             this.game_over = true;
-            this.log("玩家 " + idx + " has died of destiny loss");
+            this.log("player " + idx + " has died of destiny loss");
             return true;
         }
         while (me.hp <= 0) {
@@ -4151,7 +4159,7 @@ export class GameState {
             } else
             {
                 this.game_over = true;
-                this.log("玩家 " + idx + " has died of hp loss");
+                this.log("player " + idx + " has died of hp loss");
                 return true;
             }
         }

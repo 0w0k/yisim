@@ -4,11 +4,7 @@
 }
 
 .main {
-  height: 1080px;
-}
-
-.deck {
-  width: 1500px;
+  height: 1040px;
 }
 
 .card {
@@ -17,21 +13,25 @@
   cursor: pointer;
 }
 
+.cardname, .cardlevel {
+  width: 138px;
+  margin-left: 16px;
+}
+
 .bg {
   padding: 16px;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
 }
 
-.cardname {
-  padding-left: 6px;
-  width: 170px;
+.result {
+  width: 320px;
+  overflow-y: auto;
 }
 
-.result {
-  min-width: 320px;
-  /* box-sizing: border-box;  */
-  overflow-y: auto;
+.empty {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .footer {
