@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import pkg from './package.json';
 
-const DEPLOY_ENV = process.env.DEPLOY;
+const DEPLOY_ENV = process.env.DEPLOY_ENV;
 
 // https://vite.dev/config/
 export default defineConfig({
