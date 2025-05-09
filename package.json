@@ -2,11 +2,12 @@
   "name": "yisim",
   "homepage": "https://0w0k.github.io/yisim/",
   "private": true,
-  "version": "0.2",
+  "version": "0.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:githubpages": "DEPLOY_ENV=githubpages vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
