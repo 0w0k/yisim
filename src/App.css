@@ -7,15 +7,22 @@
   height: 1040px;
 }
 
+.deck {
+  width: 1200px;
+}
+
 .card {
-  height: 274px;
-  width: 170px;
-  cursor: pointer;
+  width: 100%;
+  height: auto;
 }
 
 .cardname, .cardlevel {
-  width: 138px;
-  margin-left: 16px;
+  width: 150px;
+  margin-inline-end: 0 !important;
+}
+
+.ant-form-item-control-input-content {
+  text-align: center;
 }
 
 .bg {

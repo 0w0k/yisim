@@ -5,3 +5,7 @@
 [submodule "public/yxp_images"]
 	path = public/yxp_images
 	url = https://github.com/0w0k/yxpImages
+
+[submodule "engine"]
+	path = engine
+	url = https://github.com/0w0k/yisim_engine

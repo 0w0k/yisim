@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select, Flex, Row, Col } from 'antd';
+import { Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select, Flex, Row, Col, Rate } from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
-import { GameState } from '../engine/gamestate_full.js';
-import parse_input from '../engine/parse_input.js';
+import { GameState } from '../engine/gamestate_full_ui.js';
+import parse_input from '../engine/parse_input_ui.js';
 
 import cardnames from '../engine/names.json';
 import _ from 'lodash';
@@ -12,7 +12,7 @@ export default function Simulator({ l, form, setResult }) {
   Form.useWatch('a', form)
   Form.useWatch('b', form)
 
-  const {a, b} = form.getFieldsValue(['a', 'b'])
+  const { a, b } = form.getFieldsValue(['a', 'b'])
 
   return (
     <Flex justify="space-between" vertical gap={16}>
@@ -49,7 +49,7 @@ export default function Simulator({ l, form, setResult }) {
                       return (
                         fields.map((field, i) => {
                           return (
-                            <Flex key={`a-cards-${i}`} vertical >
+                            <Flex key={`a-cards-${i}`} vertical className='deck'>
                               <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
                                 <Select
@@ -61,11 +61,7 @@ export default function Simulator({ l, form, setResult }) {
                                 />
                               </Form.Item>
                               <Form.Item name={[field.name, 'level']} className="cardlevel">
-                                <Radio.Group block >
-                                  <Radio value={1}>1</Radio>
-                                  <Radio value={2}>2</Radio>
-                                  <Radio value={3}>3</Radio>
-                                </Radio.Group>
+                                <Rate count={3} allowClear={false}/>
                               </Form.Item>
                             </Flex>
                           )
