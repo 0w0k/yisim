@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select, Flex, Row, Col, Rate } from 'antd';
+import React, { Children, useState } from 'react';
+import {
+  Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select,
+  Flex, Row, Col, Rate, TreeSelect
+} from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
 import { GameState } from '../engine/gamestate_full_ui.js';
 import parse_input from '../engine/parse_input_ui.js';
-
+import talents from '../engine/lanke/talents.json';
 import cardnames from '../engine/names.json';
 import _ from 'lodash';
 
@@ -14,6 +17,38 @@ export default function Simulator({ l, form, setResult }) {
 
   const { a, b } = form.getFieldsValue(['a', 'b'])
 
+  const telentsTreeData = Object.keys(talents).filter(item => talents[item]).map(item => {
+    const engineField = talents[item];
+    const result = {
+      value: engineField,
+      title: l(item),
+    }
+    if (engineField.includes('{n}')) {
+
+      result.children = [
+        {
+          value: engineField.replace(/\{n\}/g, "2"),
+          title: `${l(item)} ${l('p2')}`,
+          isLeaf: true,
+        },
+        {
+          value: engineField.replace(/\{n\}/g, "3"),
+          title: `${l(item)} ${l('p3')}`,
+        },
+        {
+          value: engineField.replace(/\{n\}/g, "4"),
+          title: `${l(item)} ${l('p4')}`,
+        },
+        {
+          value: engineField.replace(/\{n\}/g, "5"),
+          title: `${l(item)} ${l('p5')}`,
+        },
+    ]
+    }
+
+    return result
+  })
+
   return (
     <Flex justify="space-between" vertical gap={16}>
       {
@@ -23,11 +58,13 @@ export default function Simulator({ l, form, setResult }) {
             <Space key={'role' + i} className="bg" direction="vertical" size={16}>
               <Space wrap size={16}>
                 <Avatar size={80} src={`YiXian-IconsAndNames/characters/${role.character}.png`} />
-                <Avatar size={64} src='dunwu.png' />
-                <Avatar size={64} src='dunwu.png' />
-                <Avatar size={64} src='dunwu.png' />
-                <Avatar size={64} src='dunwu.png' />
-                <Avatar size={64} icon={<img style={{ objectFit: 'contain' }} src='YiXian-IconsAndNames/jobs/elixirist.png' />} />
+                {
+                  role.talents.map(item => {
+                    const fileName = Object.keys(talents).find(t => talents[t] === item.replace(/p\d+/g, "p{n}"));
+                    return <Avatar size={64} src={`yxp_images/talent/${fileName}.png`} />
+                  })
+                }
+                {/* <Avatar size={64} icon={<img style={{ objectFit: 'contain' }} src='YiXian-IconsAndNames/jobs/elixirist.png' />} /> */}
                 <Form.Item label={l('Cultivation')} name={[roleField, "cultivation"]}>
                   <InputNumber changeOnWheel controls={false} />
                 </Form.Item>
@@ -40,8 +77,25 @@ export default function Simulator({ l, form, setResult }) {
                     <Form.Item name={[roleField, "max_physique"]}><InputNumber changeOnWheel controls={false} /></Form.Item>
                   </Space.Compact>
                 </Form.Item>
-
               </Space>
+              <Form.Item label={l('Talent')} name={[roleField, "talents"]}>
+                <TreeSelect
+                  showSearch
+                  treeCheckable
+                  style={{ width: '100%' }}
+                  maxCount={5}
+                  // value={value}
+                  // styles={{
+                  //   popup: { root: { maxHeight: 400, overflow: 'auto' } },
+                  // }}
+                  // placeholder="Please select"
+                  allowClear
+                  multiple
+                  treeDefaultExpandAll
+                  // onChange={onChange}
+                  treeData={telentsTreeData}
+                />
+              </Form.Item>
               <Flex className="deck">
                 <Form.List name={[roleField, 'cards']}>
                   {
@@ -51,6 +105,9 @@ export default function Simulator({ l, form, setResult }) {
                           return (
                             <Flex key={`a-cards-${i}`} vertical className='deck'>
                               <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
+                              <Form.Item name={[field.name, 'level']} className="cardlevel">
+                                <Rate count={3} allowClear={false} />
+                              </Form.Item>
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
                                 <Select
                                   showSearch
@@ -59,9 +116,6 @@ export default function Simulator({ l, form, setResult }) {
                                   popupMatchSelectWidth={false}
                                   options={cardnames.map(({ id, name, namecn }) => ({ value: id, label: l(name) }))}
                                 />
-                              </Form.Item>
-                              <Form.Item name={[field.name, 'level']} className="cardlevel">
-                                <Rate count={3} allowClear={false}/>
                               </Form.Item>
                             </Flex>
                           )
@@ -93,7 +147,15 @@ export default function Simulator({ l, form, setResult }) {
           let jsonData = _.cloneDeep(game_json);
           jsonData.a.cards = jsonData.a.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.b.cards = jsonData.b.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.a.talents.map(t => {
+            jsonData.a[t] = 1
+          })
+          jsonData.b.talents.map(t => {
+            jsonData.b[t] = 1
+          })
           jsonData = parse_input(jsonData);
+
+          console.log(jsonData)
 
           const game = new GameState(l);
 

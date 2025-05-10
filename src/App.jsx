@@ -32,7 +32,8 @@ const initialValues = {
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },
-    ]
+    ],
+    talents: [],
   },
   "b": {
     "character": "du-lingyuan",
@@ -49,7 +50,8 @@ const initialValues = {
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },
-    ]
+    ],
+    talents: [],
   },
   "comment": "TODO implement speed comparison and let a_first be null"
 }

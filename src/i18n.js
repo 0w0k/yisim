@@ -24,7 +24,12 @@ export const cn = {
     'loss': '消耗',
     'wins': '胜利',
     'mu-yifeng': '牧逸风',
-    'du-lingyuan': '杜伶鸳'
+    'du-lingyuan': '杜伶鸳',
+    'Talent': '仙命',
+    'p2': '筑基',
+    'p3': '金丹',
+    'p4': '元婴',
+    'p5': '化神'
 };
 
 cardnames.map(card => {
