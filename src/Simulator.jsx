@@ -144,7 +144,7 @@ export default function Simulator({ l, form, setResult }) {
           )
         })
       }
-      <Space className='bg' size={16}>
+      <Flex className='bg' gap={16} wrap>
         <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={() => {
           const game_json = form.getFieldsValue(true);
 
@@ -177,7 +177,7 @@ export default function Simulator({ l, form, setResult }) {
         }>Run</Button>
         <Button size="large" type="primary" icon={<ClearOutlined />} onClick={() => { setResult([]) }}>clean</Button>
         <Button size="large" type="primary" disabled icon={<PlayCircleOutlined />}>Run (get winning deck)</Button>
-      </Space>
+      </Flex>
     </Flex>
   )
 }

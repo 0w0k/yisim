@@ -89,7 +89,7 @@ export default function App() {
       >
         <Flex vertical>
           <Flex justify="space-between" align='center'>
-            <Title>{l('Yi Xian Simulator')}</Title>
+            <Title level={2}>{l('Yi Xian Simulator')}</Title>
             <Radio.Group value={lang} onChange={onLangChange}>
               <Radio.Button value="cn">中文</Radio.Button>
               <Radio.Button value="en">English</Radio.Button>
@@ -128,13 +128,11 @@ export default function App() {
               </Flex>
             </Col>
           </Row>
-          <Flex justify='center' className='footer'>
-            <Space size={32}>
+          <Flex wrap gap={16} justify='center' className='footer'>
               <Text>Made with 弈仙牌是快乐游戏</Text>
               <Text>QQ: 412386861</Text>
               <Text>Version: v{__APP_VERSION__}</Text>
               <Text>Thanks: <Link href='https://github.com/sharpobject'>Sharp</Link> & <Link href='https://github.com/Jayromulus'>Jayromulus</Link></Text>
-            </Space>
           </Flex>
         </Flex>
       </ConfigProvider>
