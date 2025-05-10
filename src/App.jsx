@@ -42,7 +42,7 @@ const initialValues = {
     "physique": 0,
     "max_physique": 0,
     "cards": [
-      { card_id: 111011, level: 1 },
+      { card_id: 132071, level: 1 },
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },
       { card_id: 111011, level: 1 },

@@ -43,7 +43,7 @@ export default function Simulator({ l, form, setResult }) {
           value: engineField.replace(/\{n\}/g, "5"),
           title: `${l(item)} ${l('p5')}`,
         },
-    ]
+      ]
     }
 
     return result
@@ -96,14 +96,21 @@ export default function Simulator({ l, form, setResult }) {
                   treeData={telentsTreeData}
                 />
               </Form.Item>
-              <Flex className="deck">
+              <Row wrap className="deck">
                 <Form.List name={[roleField, 'cards']}>
                   {
                     (fields, { add, remove },) => {
                       return (
                         fields.map((field, i) => {
                           return (
-                            <Flex key={`a-cards-${i}`} vertical className='deck'>
+                            <Col
+                              flex
+                              xs={6}
+                              sm={6}
+                              md={3}
+                              lg={3}
+                              xl={3}
+                              key={`a-cards-${i}`} vertical className='deck'>
                               <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
                               <Form.Item name={[field.name, 'level']} className="cardlevel">
                                 <Rate count={3} allowClear={false} />
@@ -117,14 +124,14 @@ export default function Simulator({ l, form, setResult }) {
                                   options={cardnames.map(({ id, name, namecn }) => ({ value: id, label: l(name) }))}
                                 />
                               </Form.Item>
-                            </Flex>
+                            </Col>
                           )
                         })
                       )
                     }
                   }
                 </Form.List>
-              </Flex>
+              </Row>
               {/* <Space className="bg" direction="vertical" >
                   <Text >[ Hand Card ]</Text>
                   <Space size={16}>

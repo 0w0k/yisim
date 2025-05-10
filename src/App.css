@@ -4,11 +4,7 @@
 }
 
 .main {
-  height: 1080px;
-}
-
-.deck {
-  width: 1200px;
+  max-width: 1500px;
 }
 
 .card {
@@ -17,7 +13,6 @@
 }
 
 .cardname, .cardlevel {
-  width: 150px;
   margin-inline-end: 0 !important;
 }
 
@@ -32,7 +27,8 @@
 }
 
 .result {
-  width: 320px;
+  width: 50%;
+  max-height: 1080px;
   overflow-y: auto;
 }
 
@@ -42,5 +38,5 @@
 }
 
 .footer {
-  height: 32px;
+  margin-top: 4px;
 }
