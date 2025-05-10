@@ -122,8 +122,8 @@ export default function App() {
                 }
                 {
                   result.map((item, i) => i !== result.length - 1 ?
-                    <Paragraph>{item}</Paragraph> :
-                    <Paragraph type='success' strong>{item}</Paragraph>)
+                    <Paragraph key={'result' + i}>{item}</Paragraph> :
+                    <Paragraph key={'result' + i} type='success' strong>{item}</Paragraph>)
                 }
               </Flex>
             </Col>

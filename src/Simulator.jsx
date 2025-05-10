@@ -105,9 +105,9 @@ export default function Simulator({ l, form, setResult }) {
                           return (
                             <Col
                               flex
-                              xs={6}
+                              xs={12}
                               md={3}
-                              key={`a-cards-${i}`} vertical className='deck'>
+                              key={`a-cards-${i}`} className='deck'>
                               <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
                               <Form.Item name={[field.name, 'level']} className="cardlevel">
                                 <Rate count={3} allowClear={false} />

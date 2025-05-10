@@ -29,8 +29,13 @@
 .result {
   height: 100%;
   box-sizing: border-box;
-  max-height: 1080px;
-  overflow-y: auto;
+}
+
+@media (min-width: 992px) {
+  .result {
+    overflow-y: auto;
+    max-height: 1080px;
+  }
 }
 
 .empty {
