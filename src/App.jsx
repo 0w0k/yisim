@@ -95,27 +95,39 @@ export default function App() {
               <Radio.Button value="en">English</Radio.Button>
             </Radio.Group>
           </Flex>
-          <Flex gap={16} className='main'>
-            <Form
-              layout="inline"
-              variant="underlined"
-              form={form}
-              initialValues={initialValues}
+          <Row gutter={[16, 16]} className='main'>
+            <Col
+              xs={24}
+              md={24}
+              lg={18}
             >
-              <Simulator l={l} form={form} setResult={setResult} />
-            </Form>
-            <Flex vertical className='bg result'>
-              <Title level={4}>{l('Result:')}</Title>
-              {
-                result.length === 0 && <Empty className='empty'/>
-              }
-              {
-                result.map((item, i) => i !== result.length - 1 ?
-                  <Paragraph>{item}</Paragraph> :
-                  <Paragraph type='success' strong>{item}</Paragraph>)
-              }
-            </Flex>
-          </Flex>
+              <Form
+                layout="inline"
+                variant="underlined"
+                form={form}
+                initialValues={initialValues}
+              >
+                <Simulator l={l} form={form} setResult={setResult} />
+              </Form>
+            </Col>
+            <Col
+              xs={24}
+              md={24}
+              lg={6}
+            >
+              <Flex vertical className='bg result'>
+                <Title level={4}>{l('Result:')}</Title>
+                {
+                  result.length === 0 && <Empty className='empty'/>
+                }
+                {
+                  result.map((item, i) => i !== result.length - 1 ?
+                    <Paragraph>{item}</Paragraph> :
+                    <Paragraph type='success' strong>{item}</Paragraph>)
+                }
+              </Flex>
+            </Col>
+          </Row>
           <Flex justify='center' className='footer'>
             <Space size={32}>
               <Text>Made with 弈仙牌是快乐游戏</Text>

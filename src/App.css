@@ -27,7 +27,8 @@
 }
 
 .result {
-  width: 50%;
+  height: 100%;
+  box-sizing: border-box;
   max-height: 1080px;
   overflow-y: auto;
 }
