@@ -46,3 +46,8 @@
 .footer {
   margin-top: 4px;
 }
+
+.ant-tree-select-dropdown .ant-select-tree .ant-select-tree-treenode-disabled .ant-select-tree-node-content-wrapper {
+  color: unset;
+  cursor: pointer;
+}

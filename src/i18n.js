@@ -27,10 +27,12 @@ export let cn = {
   'mu-yifeng': '牧逸风',
   'du-lingyuan': '杜伶鸳',
   'Talent': '仙命',
-  'p2': '(筑基)',
-  'p3': '(金丹)',
-  'p4': '(元婴)',
-  'p5': '(化神)',
+  'p1': '练气',
+  'p2': '筑基',
+  'p3': '金丹',
+  'p4': '元婴',
+  'p5': '化神',
+  'p6': '返虚',
   'chase!!': '再次行动',
   'this card': '此卡',
   'gained': '获得',
@@ -44,18 +46,32 @@ export let cn = {
   "Innate Element Metal": "先天五行·金",
   "Innate Element Water": "先天五行·水",
   "Innate Element Wood": "先天五行·木",
+  "instead of playing": "代替使用",
+  "They": "然后",
+  "increased": "增加",
+  "play": "打出",
+  "healed": "恢复",
+  "Went from": "从",
+  "nuwa stone": "女娲石",
+  "max": "最大",
+  "Sect": "门派",
+  "side jobs": "副职",
+  "Character specific": "角色专属",
+  "Zongzi": "粽子",
+  "Relics": "遗迹法器",
+  "Fate Branches": "命运分支"
 };
 
 export default function i18n(lang) {
   
   Localization.mSource.mTerms.map(item => {
-    if (/CardName_|Talent_|CardKeyword_/.test(item.Term)) {
+    if (/CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_/.test(item.Term)) {
       cn[item.Languages[1]] = item.Languages[0]
     }
   })
 
   cn = Object.fromEntries(
-    Object.entries(cn).map(([key, value]) => [key.toLowerCase(), value])
+    Object.entries(cn).map(([key, value]) => [key.toLowerCase(), value]).sort(([k1], [k2]) => k2.length - k1.length)
   );
 
   function l(text) {

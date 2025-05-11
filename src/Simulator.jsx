@@ -9,6 +9,7 @@ import parse_input from '../engine/parse_input_ui.js';
 import talents from '../engine/lanke/talents.json';
 import cardnames from '../engine/names.json';
 import _ from 'lodash';
+import Localization from './Localization.json';
 
 export default function Simulator({ l, form, setResult }) {
 
@@ -48,6 +49,92 @@ export default function Simulator({ l, form, setResult }) {
 
     return result
   })
+
+
+  function buildTree(items) {
+    const tree = [];
+  
+    for (const item of items) {
+      const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
+  
+      // 1. Extract levels
+      const s = String(item.id).padStart(6, '0');
+      const m = s.match(ID_RE);
+      if (!m) continue;
+      const [, lv1, lv2, lv3, lv4, lv5] = m;
+      const levels = [lv1, lv2, lv3];
+      let prefix = 'cardtree';
+  
+      // 2. Walk/create each level
+      let currentLevel = tree;
+      levels.map((part, i) => {
+        prefix = prefix + part;
+        let value = prefix;
+        if (i === 0) {
+          value = 'Subcategory_' + part;
+          if (part === '1') {
+            value = 'Sect'
+          }
+          if (part === '3') {
+            value = 'Side Jobs'
+          }
+          if (part === '2') {
+            value = 'Subcategory_' + 4;
+          }
+          if (part === '4') {
+            value = 'Subcategory_' + 2;
+          }
+          if (part === '5') {
+            value = 'Subcategory_' + 3;
+          }
+          if (part === '6') {
+            value = 'Character specific';
+          }
+          if (part === '7') {
+            value = 'Fate Branches';
+          }
+          if (part === '8') {
+            value = 'Zongzi';
+          }
+          if (part === '9') {
+            value = 'Relics';
+          }
+          Localization.mSource.mTerms.find(item => {
+            if(item.Term === value) {
+              value = item.Languages[1];
+            }
+          })
+        } 
+        if (i === 1) {
+          value = 'Sect_' + part;
+          if (lv1 === '3') {
+            value = 'Career_' + part;
+          }
+          Localization.mSource.mTerms.find(item => {
+            if(item.Term === value) {
+              value = item.Languages[1];
+            }
+          })
+        } 
+        if (i === 2) {
+          value = 'p' + part;
+        } 
+        let node = currentLevel.find(n => n.idPart === prefix);
+        if (!node) {
+          node = { idPart: prefix, value: prefix, label: l(value), disabled: true, children: [] };
+          currentLevel.push(node);
+        }
+        currentLevel = node.children;
+      })
+  
+      // 3. At the leaf, attach the full item
+      currentLevel.push({ value: item.id, label: l(item.name) });
+    }
+  
+    return tree;
+  }
+  
+  const cardTreeData = buildTree(cardnames);
 
   return (
     <Flex justify="space-between" vertical gap={16}>
@@ -91,7 +178,7 @@ export default function Simulator({ l, form, setResult }) {
                   // placeholder="Please select"
                   allowClear
                   multiple
-                  treeDefaultExpandAll
+                  // treeDefaultExpandAll
                   // onChange={onChange}
                   treeData={telentsTreeData}
                 />
@@ -113,12 +200,13 @@ export default function Simulator({ l, form, setResult }) {
                                 <Rate count={3} allowClear={false} />
                               </Form.Item>
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
-                                <Select
-                                  showSearch
-                                  placeholder="Select a Card"
-                                  optionFilterProp="label"
+                                <TreeSelect
+                                  treeExpandAction="click"
+                                  styles={{
+                                    popup: { root: { maxHeight: 400, overflow: 'auto', minWidth: 300 } },
+                                  }}
                                   popupMatchSelectWidth={false}
-                                  options={cardnames.map(({ id, name, namecn }) => ({ value: id, label: l(name) }))}
+                                  treeData={cardTreeData}
                                 />
                               </Form.Item>
                             </Col>

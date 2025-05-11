@@ -129,7 +129,7 @@ export default function App() {
             </Col>
           </Row>
           <Flex wrap gap={16} justify='center' className='footer'>
-              <Text>Made with 弈仙牌是快乐游戏</Text>
+              <Text>YiXian ID: 弈仙牌是快乐游戏</Text>
               <Text>QQ: 412386861</Text>
               <Text>Version: v{__APP_VERSION__}</Text>
               <Text>Thanks: <Link href='https://github.com/sharpobject'>Sharp</Link> & <Link href='https://github.com/Jayromulus'>Jayromulus</Link></Text>
