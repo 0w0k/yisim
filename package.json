@@ -2,7 +2,7 @@
   "name": "yisim",
   "homepage": "https://0w0k.github.io/yisim/",
   "private": true,
-  "version": "0.4",
+  "version": "0.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,8 +19,10 @@
     "antd": "^5.25.0",
     "gh-pages": "^6.3.0",
     "lodash": "^4.17.21",
+    "pinyin": "^4.0.0-alpha.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "segmentit": "^2.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

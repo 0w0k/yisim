@@ -10,7 +10,18 @@ import talents from './engine/lanke/talents.json';
 import cardnames from './engine/names.json';
 import { do_riddle } from './engine/find_winning_deck.js';
 import _ from 'lodash';
+import pinyin from "pinyin";
 import Localization from './Localization.json';
+
+const getPinyin = (text) => {
+  const fullPinyin = pinyin(text, { style: pinyin.STYLE_NORMAL }).flat().join("");
+  const firstLetterPinyin = pinyin(text, { style: pinyin.STYLE_FIRST_LETTER }).flat().join("");
+  return { fullPinyin, firstLetterPinyin };
+};
+
+const localizationMap = new Map(Localization.mSource.mTerms.map(item => [item.Term, item.Languages[1]]));
+
+const getLocalizationValue = (value) => localizationMap.get(value) || value;
 
 export default function Simulator({ l, form, setResult }) {
 
@@ -26,12 +37,10 @@ export default function Simulator({ l, form, setResult }) {
       title: l(item),
     }
     if (engineField.includes('{n}')) {
-
       result.children = [
         {
           value: engineField.replace(/\{n\}/g, "2"),
           title: `${l(item)} ${l('p2')}`,
-          isLeaf: true,
         },
         {
           value: engineField.replace(/\{n\}/g, "3"),
@@ -100,42 +109,58 @@ export default function Simulator({ l, form, setResult }) {
           if (part === '9') {
             value = 'Relics';
           }
-          Localization.mSource.mTerms.find(item => {
-            if(item.Term === value) {
-              value = item.Languages[1];
-            }
-          })
+          getLocalizationValue(value)
         } 
         if (i === 1) {
           value = 'Sect_' + part;
           if (lv1 === '3') {
             value = 'Career_' + part;
           }
-          Localization.mSource.mTerms.find(item => {
-            if(item.Term === value) {
-              value = item.Languages[1];
-            }
-          })
+          getLocalizationValue(value)
         } 
         if (i === 2) {
           value = 'p' + part;
         } 
         let node = currentLevel.find(n => n.idPart === prefix);
         if (!node) {
-          node = { idPart: prefix, value: prefix, label: l(value), disabled: true, children: [] };
+          node = { idPart: prefix, value: prefix, title: l(value), disabled: true, children: [] };
           currentLevel.push(node);
         }
         currentLevel = node.children;
       })
   
       // 3. At the leaf, attach the full item
-      currentLevel.push({ value: item.id, label: l(item.name) });
+      currentLevel.push({ value: item.id, title: l(item.name) });
     }
   
     return tree;
   }
   
-  const cardTreeData = buildTree(cardnames);
+  function buildTree2(items) {
+    return items.map(item => ({value: item.id, title: l(item.name)}))
+  }
+
+  const cardTreeData = buildTree2(cardnames);
+
+  const filterTreeNode = (input, option) => {
+    const { fullPinyin, firstLetterPinyin } = getPinyin(option.title);
+    const lowerInput = input.toLowerCase();
+
+    if (
+      option.title.includes(input) || // 中文匹配
+      fullPinyin.includes(lowerInput) || // 全拼匹配
+      firstLetterPinyin.includes(lowerInput) // 首字母匹配
+    ) {
+      return true;
+    }
+
+    // 如果当前节点有子节点，递归搜索
+    // if (option.children) {
+    //   return option.children.some((child) => filterTreeNode(input, child));
+    // }
+
+    return false;
+  };
 
   return (
     <Flex justify="space-between" vertical gap={16}>
@@ -172,6 +197,7 @@ export default function Simulator({ l, form, setResult }) {
                   treeCheckable
                   style={{ width: '100%' }}
                   maxCount={5}
+                  filterTreeNode={filterTreeNode}
                   // value={value}
                   // styles={{
                   //   popup: { root: { maxHeight: 400, overflow: 'auto' } },
@@ -179,7 +205,7 @@ export default function Simulator({ l, form, setResult }) {
                   // placeholder="Please select"
                   allowClear
                   multiple
-                  // treeDefaultExpandAll
+                  treeDefaultExpandAll
                   // onChange={onChange}
                   treeData={telentsTreeData}
                 />
@@ -202,7 +228,9 @@ export default function Simulator({ l, form, setResult }) {
                               </Form.Item>
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
                                 <TreeSelect
+                                  showSearch
                                   treeExpandAction="click"
+                                  filterTreeNode={filterTreeNode}
                                   styles={{
                                     popup: { root: { maxHeight: 400, overflow: 'auto', minWidth: 300 } },
                                   }}
