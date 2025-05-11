@@ -1,1 +1,0 @@
-const e={},o=[],a=(async()=>{const s=await fetch("../engine/swogi.json");Object.assign(e,await s.json());const n=await fetch("../engine/names.json");Object.assign(o,await n.json())})();export{o as names_json,a as ready,e as swogi};
