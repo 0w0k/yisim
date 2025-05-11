@@ -1,0 +1,130 @@
+{
+    "permute_a": false,
+    "permute_b": false,
+    "a_first": true,
+    "limit_consumption": true,
+    "a": {
+        "character": "mu-yifeng",
+        "cultivation": 2,
+        "hp": 113,
+        "physique": 68,
+        "max_physique": 95,
+        "cards": [
+            {
+                "card_id": 335011,
+                "level": 2
+            },
+            {
+                "card_id": 144011,
+                "level": 3
+            },
+            {
+                "card_id": 145021,
+                "level": 2
+            },
+            {
+                "card_id": 144031,
+                "level": 3
+            },
+            {
+                "card_id": 144021,
+                "level": 3
+            },
+            {
+                "card_id": 145071,
+                "level": 2
+            },
+            {
+                "card_id": 145071,
+                "level": 1
+            },
+            {
+                "card_id": 145061,
+                "level": 1
+            },
+            {
+                "card_id": 145051,
+                "level": 2
+            },
+            {
+                "card_id": 142071,
+                "level": 2
+            },
+            {
+                "card_id": 334031,
+                "level": 2
+            },
+            {
+                "card_id": 334031,
+                "level": 2
+            },
+            {
+                "card_id": 144081,
+                "level": 1
+            },
+            {
+                "card_id": 144071,
+                "level": 3
+            },
+            {
+                "card_id": 145011,
+                "level": 2
+            },
+            {
+                "card_id": 144051,
+                "level": 2
+            }
+        ],
+        "talents": [
+            "unbounded_qi_stacks"
+        ]
+    },
+    "b": {
+        "character": "du-lingyuan",
+        "cultivation": 100,
+        "hp": 110,
+        "physique": 0,
+        "max_physique": 0,
+        "cards": [
+            {
+                "card_id": 123111,
+                "level": 2
+            },
+            {
+                "card_id": 125071,
+                "level": 3
+            },
+            {
+                "card_id": 123101,
+                "level": 3
+            },
+            {
+                "card_id": 601011,
+                "level": 1
+            },
+            {
+                "card_id": 601011,
+                "level": 1
+            },
+            {
+                "card_id": 601011,
+                "level": 1
+            },
+            {
+                "card_id": 601011,
+                "level": 1
+            },
+            {
+                "card_id": 125071,
+                "level": 2
+            }
+        ],
+        "talents": [
+            "rest_and_outwit_stacks",
+            "act_underhand_stacks",
+            "p5_post_strike_stacks",
+            "p5_divination_stacks"
+        ]
+    },
+    "comment": "TODO implement speed comparison and let a_first be null"
+}

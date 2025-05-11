@@ -63,10 +63,10 @@ export default function Simulator({ l, form, setResult }) {
 
   function buildTree(items) {
     const tree = [];
-  
+
     for (const item of items) {
       const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
-  
+
       // 1. Extract levels
       const s = String(item.id).padStart(6, '0');
       const m = s.match(ID_RE);
@@ -74,7 +74,7 @@ export default function Simulator({ l, form, setResult }) {
       const [, lv1, lv2, lv3, lv4, lv5] = m;
       const levels = [lv1, lv2, lv3];
       let prefix = 'cardtree';
-  
+
       // 2. Walk/create each level
       let currentLevel = tree;
       levels.map((part, i) => {
@@ -110,17 +110,17 @@ export default function Simulator({ l, form, setResult }) {
             value = 'Relics';
           }
           getLocalizationValue(value)
-        } 
+        }
         if (i === 1) {
           value = 'Sect_' + part;
           if (lv1 === '3') {
             value = 'Career_' + part;
           }
           getLocalizationValue(value)
-        } 
+        }
         if (i === 2) {
           value = 'p' + part;
-        } 
+        }
         let node = currentLevel.find(n => n.idPart === prefix);
         if (!node) {
           node = { idPart: prefix, value: prefix, title: l(value), disabled: true, children: [] };
@@ -128,16 +128,16 @@ export default function Simulator({ l, form, setResult }) {
         }
         currentLevel = node.children;
       })
-  
+
       // 3. At the leaf, attach the full item
       currentLevel.push({ value: item.id, title: l(item.name) });
     }
-  
+
     return tree;
   }
-  
+
   function buildTree2(items) {
-    return items.map(item => ({value: item.id, title: l(item.name)}))
+    return items.map(item => ({ value: item.id, title: l(item.name) }))
   }
 
   const cardTreeData = buildTree2(cardnames);
@@ -246,17 +246,6 @@ export default function Simulator({ l, form, setResult }) {
                   }
                 </Form.List>
               </Row>
-              {/* <Space className="bg" direction="vertical" >
-                  <Text >[ Hand Card ]</Text>
-                  <Space size={16}>
-                    <Avatar className="card" shape="square" src='./yxp_images/en/111011.png' />
-                    <Avatar className="card" shape="square" src='./yxp_images/en/111011.png' />
-                    <Avatar className="card" shape="square" src='./yxp_images/en/111011.png' />
-                    <Avatar className="card" shape="square" src='./yxp_images/en/111011.png' />
-                    <Avatar className="card" shape="square" src='./yxp_images/en/111011.png' />
-                    <Avatar className="card" shape="square" ><span style={{ fontSize: 36 }}>+</span></Avatar>
-                  </Space>
-                </Space> */}
             </Space>
           )
         })
@@ -266,10 +255,11 @@ export default function Simulator({ l, form, setResult }) {
           await gamestate_ready;
           await parse_input_ready;
           const game_json = form.getFieldsValue(true);
+          console.log(JSON.stringify(game_json));
 
           let jsonData = _.cloneDeep(game_json);
-          jsonData.a.cards = jsonData.a.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
-          jsonData.b.cards = jsonData.b.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.a.cards = jsonData.a.cards.filter((c, i) => i < 8).map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.b.cards = jsonData.b.cards.filter((c, i) => i < 8).map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.a.talents.map(t => {
             jsonData.a[t] = 1
           })
@@ -277,8 +267,6 @@ export default function Simulator({ l, form, setResult }) {
             jsonData.b[t] = 1
           })
           jsonData = parse_input(jsonData);
-
-          console.log(jsonData)
 
           const game = new GameState(l);
 
@@ -298,6 +286,7 @@ export default function Simulator({ l, form, setResult }) {
         <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={async () => {
           await parse_input_ready;
           const game_json = form.getFieldsValue(true);
+          console.log(JSON.stringify(game_json));
 
           let jsonData = _.cloneDeep(game_json);
           jsonData.a.cards = jsonData.a.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
@@ -310,20 +299,21 @@ export default function Simulator({ l, form, setResult }) {
           })
           jsonData = parse_input(jsonData);
 
-          console.log(jsonData)
-
           let my_idx = 0;
           let players = [jsonData.a, jsonData.b];
           if (jsonData.a.cultivation < jsonData.b.cultivation) {
             players = [jsonData.b, jsonData.a];
             my_idx = 1;
           }
-          do_riddle({players: players, my_idx: my_idx}, (riddle, response) => {
-            console.log("got response with " + response.winning_decks.length + " winning decks");
-            for (let i=0; i<response.winning_decks.length; i++) {
-              console.log(response.winning_logs[i].join("\n"));
-              console.log("winning deck: " + JSON.stringify(response.winning_decks[i]));
-              console.log("winning margin: " + response.winning_margins[i]);
+          do_riddle({ players: players, my_idx: my_idx }, (riddle, response) => {
+            const result = [];
+            // result.push("got response with " + response.winning_decks.length + " winning decks");
+            for (let i = 0; i < response.winning_decks.length; i++) {
+              // result.push(...response.winning_logs[i]);
+              result.push("winning deck: " + JSON.stringify(response.winning_decks[i].map(c => l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '') + c.slice(-1))));
+              result.push("winning margin: " + response.winning_margins[i]);
+
+              setResult(_result => [..._result, ...result])
             }
           });
         }
