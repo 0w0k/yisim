@@ -8,6 +8,7 @@ import { GameState } from '../engine/gamestate_full_ui.js';
 import parse_input from '../engine/parse_input_ui.js';
 import talents from '../engine/lanke/talents.json';
 import cardnames from '../engine/names.json';
+import { do_riddle } from '../engine/find_winning_deck.js';
 import _ from 'lodash';
 
 export default function Simulator({ l, form, setResult }) {
@@ -176,7 +177,38 @@ export default function Simulator({ l, form, setResult }) {
         }
         }>Run</Button>
         <Button size="large" type="primary" icon={<ClearOutlined />} onClick={() => { setResult([]) }}>clean</Button>
-        <Button size="large" type="primary" disabled icon={<PlayCircleOutlined />}>Run (get winning deck)</Button>
+        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={() => {
+          const game_json = form.getFieldsValue(true);
+
+          let jsonData = _.cloneDeep(game_json);
+          jsonData.a.cards = jsonData.a.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.b.cards = jsonData.b.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.a.talents.map(t => {
+            jsonData.a[t] = 1
+          })
+          jsonData.b.talents.map(t => {
+            jsonData.b[t] = 1
+          })
+          jsonData = parse_input(jsonData);
+
+          console.log(jsonData)
+
+          let my_idx = 0;
+          let players = [jsonData.a, jsonData.b];
+          if (jsonData.a.cultivation < jsonData.b.cultivation) {
+            players = [jsonData.b, jsonData.a];
+            my_idx = 1;
+          }
+          do_riddle({players: players, my_idx: my_idx}, (riddle, response) => {
+            console.log("got response with " + response.winning_decks.length + " winning decks");
+            for (let i=0; i<response.winning_decks.length; i++) {
+              console.log(response.winning_logs[i].join("\n"));
+              console.log("winning deck: " + JSON.stringify(response.winning_decks[i]));
+              console.log("winning margin: " + response.winning_margins[i]);
+            }
+          });
+        }
+        }>Run (get winning deck)</Button>
       </Flex>
     </Flex>
   )
