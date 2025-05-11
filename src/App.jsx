@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select, Flex, Row, Col, Empty } from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
 import Simulator from './Simulator.jsx';
-import { GameState } from '../engine/gamestate_full_ui.js';
-import parse_input from '../engine/parse_input_ui.js';
 import i18n from './i18n.js';
 import './App.css';
 import _ from 'lodash';
