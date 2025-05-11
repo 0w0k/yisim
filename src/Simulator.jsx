@@ -4,11 +4,11 @@ import {
   Flex, Row, Col, Rate, TreeSelect
 } from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
-import { GameState, ready as gamestate_ready } from '../engine/gamestate_full_ui.js';
-import { parse_input, ready as parse_input_ready } from '../engine/parse_input_ui.js';
-import talents from '../engine/lanke/talents.json';
-import cardnames from '../engine/names.json';
-import { do_riddle } from '../engine/find_winning_deck.js';
+import { GameState, ready as gamestate_ready } from './engine/gamestate_full_ui.js';
+import { parse_input, ready as parse_input_ready } from './engine/parse_input_ui.js';
+import talents from './engine/lanke/talents.json';
+import cardnames from './engine/names.json';
+import { do_riddle } from './engine/find_winning_deck.js';
 import _ from 'lodash';
 import Localization from './Localization.json';
 
