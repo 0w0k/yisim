@@ -1,8 +1,8 @@
-//({ GameState, card_name_to_id_fuzzy } = require("./gamestate_nolog.js"));
-import { GameState as GameStateWithLog, Player as PlayerWithLog } from "./gamestate.js";
+import { GameState as GameStateWithLog, Player as PlayerWithLog, ready as gamestate_ready } from "./gamestate.js";
+import { GameState, Player, ready as gamestate_nolog_ready } from "./gamestate_nolog.js";
 
-import { GameState, Player, card_name_to_id_fuzzy } from "./gamestate_nolog.js";
-//const { GameState: GameStateWithLog } = require("./gamestate.js"); 
+await gamestate_ready;
+await gamestate_nolog_ready;
 
 
 function next_permutation(arr) {

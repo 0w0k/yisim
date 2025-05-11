@@ -1,7 +1,7 @@
-import { card_name_to_id_fuzzy, guess_character } from './gamestate_full_ui.js';
-import example from './example.json';
+import { guess_character } from './gamestate_full_ui.js';
+import { card_name_to_id_fuzzy, ready } from './card_name_to_id_fuzzy.js';
 
-export default function(json) {
+function parse_input(json) {
 
   let jsonData = json;
   // if (/^\s*\{/.test(dataString)) {
@@ -100,3 +100,5 @@ export default function(json) {
 
   return jsonData;
 }
+
+export { parse_input, ready };

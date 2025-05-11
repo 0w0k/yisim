@@ -1,4 +1,7 @@
-import { card_name_to_id_fuzzy, guess_character } from './gamestate_nolog';
+import { guess_character } from './gamestate_nolog';
+import { card_name_to_id_fuzzy, ready } from './card_name_to_id_fuzzy';
+
+await ready;
 
 export default function(dataString) {
   let jsonData = null;
