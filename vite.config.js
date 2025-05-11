@@ -14,7 +14,7 @@ export default defineConfig({
       targets: [
         {
           src: 'engine',
-          dest: 'engine'
+          dest: ''
         }
       ]
     })
