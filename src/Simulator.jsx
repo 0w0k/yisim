@@ -4,8 +4,8 @@ import {
   Flex, Row, Col, Rate, TreeSelect
 } from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
-import { GameState } from '../engine/gamestate_full_ui.js';
-import parse_input from '../engine/parse_input_ui.js';
+import { GameState, ready as gamestate_ready } from '../engine/gamestate_full_ui.js';
+import { parse_input, ready as parse_input_ready } from '../engine/parse_input_ui.js';
 import talents from '../engine/lanke/talents.json';
 import cardnames from '../engine/names.json';
 import { do_riddle } from '../engine/find_winning_deck.js';
@@ -234,7 +234,9 @@ export default function Simulator({ l, form, setResult }) {
         })
       }
       <Flex className='bg' gap={16} wrap>
-        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={() => {
+        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={async () => {
+          await gamestate_ready;
+          await parse_input_ready;
           const game_json = form.getFieldsValue(true);
 
           let jsonData = _.cloneDeep(game_json);
@@ -265,7 +267,8 @@ export default function Simulator({ l, form, setResult }) {
         }
         }>Run</Button>
         <Button size="large" type="primary" icon={<ClearOutlined />} onClick={() => { setResult([]) }}>clean</Button>
-        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={() => {
+        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={async () => {
+          await parse_input_ready;
           const game_json = form.getFieldsValue(true);
 
           let jsonData = _.cloneDeep(game_json);
