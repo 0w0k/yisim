@@ -19,9 +19,9 @@ const getPinyin = (text) => {
   return { fullPinyin, firstLetterPinyin };
 };
 
-const localizationMap = new Map(Localization.mSource.mTerms.map(item => [item.Term, item.Languages[1]]));
+// const localizationMap = new Map(Localization.mSource.mTerms.map(item => [item.Term, item.Languages[1]]));
 
-const getLocalizationValue = (value) => localizationMap.get(value) || value;
+// const getLocalizationValue = (value) => localizationMap.get(value) || value;
 
 export default function Simulator({ l, form, setResult }) {
 
@@ -109,14 +109,22 @@ export default function Simulator({ l, form, setResult }) {
           if (part === '9') {
             value = 'Relics';
           }
-          getLocalizationValue(value)
+          Localization.mSource.mTerms.find(item => {
+            if(item.Term === value) {
+              value = item.Languages[1];
+            }
+          })
         }
         if (i === 1) {
           value = 'Sect_' + part;
           if (lv1 === '3') {
             value = 'Career_' + part;
           }
-          getLocalizationValue(value)
+          Localization.mSource.mTerms.find(item => {
+            if(item.Term === value) {
+              value = item.Languages[1];
+            }
+          })
         }
         if (i === 2) {
           value = 'p' + part;
@@ -136,28 +144,17 @@ export default function Simulator({ l, form, setResult }) {
     return tree;
   }
 
-  function buildTree2(items) {
-    return items.map(item => ({ value: item.id, title: l(item.name) }))
-  }
-
-  const cardTreeData = buildTree2(cardnames);
-
   const filterTreeNode = (input, option) => {
     const { fullPinyin, firstLetterPinyin } = getPinyin(option.title);
     const lowerInput = input.toLowerCase();
 
     if (
-      option.title.includes(input) || // 中文匹配
+      option.title.toLowerCase().includes(lowerInput) || // 中文匹配
       fullPinyin.includes(lowerInput) || // 全拼匹配
       firstLetterPinyin.includes(lowerInput) // 首字母匹配
     ) {
       return true;
     }
-
-    // 如果当前节点有子节点，递归搜索
-    // if (option.children) {
-    //   return option.children.some((child) => filterTreeNode(input, child));
-    // }
 
     return false;
   };
@@ -223,20 +220,23 @@ export default function Simulator({ l, form, setResult }) {
                               md={3}
                               key={`a-cards-${i}`} className='deck'>
                               <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
-                              <Form.Item name={[field.name, 'level']} className="cardlevel">
-                                <Rate count={3} allowClear={false} />
-                              </Form.Item>
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
                                 <TreeSelect
                                   showSearch
+                                  suffixIcon={<ClearOutlined onClick={(e) => {
+                                    form.setFieldValue([roleField, 'cards', field.name], { card_id: 601011, level: 1 })
+                                  }} />}
                                   treeExpandAction="click"
                                   filterTreeNode={filterTreeNode}
                                   styles={{
                                     popup: { root: { maxHeight: 400, overflow: 'auto', minWidth: 300 } },
                                   }}
                                   popupMatchSelectWidth={false}
-                                  treeData={cardTreeData}
+                                  treeData={buildTree(cardnames)}
                                 />
+                              </Form.Item>
+                              <Form.Item name={[field.name, 'level']} className="cardlevel">
+                                <Rate tabIndex="-1" count={3} allowClear={false} />
                               </Form.Item>
                             </Col>
                           )
@@ -305,19 +305,25 @@ export default function Simulator({ l, form, setResult }) {
             players = [jsonData.b, jsonData.a];
             my_idx = 1;
           }
+          setResult([l("Winning deck:")]);
           do_riddle({ players: players, my_idx: my_idx }, (riddle, response) => {
             const result = [];
             // result.push("got response with " + response.winning_decks.length + " winning decks");
             for (let i = 0; i < response.winning_decks.length; i++) {
               // result.push(...response.winning_logs[i]);
-              result.push("winning deck: " + JSON.stringify(response.winning_decks[i].map(c => l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '') + c.slice(-1))));
-              result.push("winning margin: " + response.winning_margins[i]);
+              result.push(response.winning_decks[i].map(c => `[${l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '')} ${c.slice(-1)}]`).join(' ') );
+              result.push(l("Winning margin:") + ' ' + response.winning_margins[i]);
+              result.push("-----------");
 
               setResult(_result => [..._result, ...result])
             }
           });
         }
         }>Run (get winning deck)</Button>
+        <Button size="large" type="primary" onClick={() => {
+          const game_json = form.getFieldsValue(true);
+          navigator.clipboard.writeText(JSON.stringify(game_json))
+        }}>Copy JSON</Button>
       </Flex>
     </Flex>
   )

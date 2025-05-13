@@ -7,8 +7,8 @@
         "character": "mu-yifeng",
         "cultivation": 2,
         "hp": 113,
-        "physique": 68,
-        "max_physique": 95,
+        "physique": 0,
+        "max_physique": 0,
         "cards": [
             {
                 "card_id": 335011,
@@ -82,13 +82,13 @@
     "b": {
         "character": "du-lingyuan",
         "cultivation": 100,
-        "hp": 110,
+        "hp": 119,
         "physique": 0,
         "max_physique": 0,
         "cards": [
             {
                 "card_id": 123111,
-                "level": 2
+                "level": 3
             },
             {
                 "card_id": 125071,
@@ -99,31 +99,29 @@
                 "level": 3
             },
             {
-                "card_id": 601011,
-                "level": 1
-            },
-            {
-                "card_id": 601011,
-                "level": 1
-            },
-            {
-                "card_id": 601011,
-                "level": 1
-            },
-            {
-                "card_id": 601011,
-                "level": 1
-            },
-            {
-                "card_id": 125071,
+                "card_id": 374011,
                 "level": 2
+            },
+            {
+                "card_id": 372031,
+                "level": 1
+            },
+            {
+                "card_id": 124011,
+                "level": 2
+            },
+            {
+                "card_id": 375021,
+                "level": 3
+            },
+            {
+                "card_id": 624011,
+                "level": 1
             }
         ],
         "talents": [
-            "rest_and_outwit_stacks",
-            "act_underhand_stacks",
-            "p5_post_strike_stacks",
-            "p5_divination_stacks"
+            "heptastar_soulstat_stacks",
+            "p5_post_strike_stacks"
         ]
     },
     "comment": "TODO implement speed comparison and let a_first be null"

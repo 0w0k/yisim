@@ -59,7 +59,9 @@ export let cn = {
   "Character specific": "角色专属",
   "Zongzi": "粽子",
   "Relics": "遗迹法器",
-  "Fate Branches": "命运分支"
+  "Fate Branches": "命运分支",
+  "winning deck:": "获胜卡组：",
+  "winning margin:": "血量差距：",
 };
 
 export default function i18n(lang) {
