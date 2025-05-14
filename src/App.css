@@ -12,7 +12,8 @@
   height: auto;
 }
 
-.cardname, .cardlevel {
+.cardname,
+.cardlevel {
   margin-inline-end: 0 !important;
 }
 
@@ -47,7 +48,10 @@
   margin-top: 4px;
 }
 
-.ant-tree-select-dropdown .ant-select-tree .ant-select-tree-treenode-disabled .ant-select-tree-node-content-wrapper {
+.ant-tree-select-dropdown
+  .ant-select-tree
+  .ant-select-tree-treenode-disabled
+  .ant-select-tree-node-content-wrapper {
   color: unset;
   cursor: pointer;
 }
