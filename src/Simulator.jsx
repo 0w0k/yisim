@@ -1,7 +1,7 @@
 import React, { Children, useState, useRef } from 'react';
 import {
   Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select,
-  Flex, Row, Col, Rate, TreeSelect
+  Flex, Row, Col, Rate, TreeSelect, Empty
 } from 'antd';
 import { UserOutlined, QuestionOutlined, PlayCircleOutlined, ClearOutlined } from '@ant-design/icons';
 import { GameState, ready as gamestate_ready } from './engine/gamestate_full_ui.js';
@@ -221,13 +221,18 @@ export default function Simulator({ l, form, setResult }) {
                               xs={12}
                               md={3}
                               key={`a-cards-${i}`} className='deck'>
-                              <Avatar className="card" shape="square" src={`yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`} />
+                              <Avatar className="card" shape="square" src={
+                                role?.cards[i].card_id ?
+                                `yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`: 
+                                `yxp_images/en/Deviation Syndrome1.png`} />
                               <Form.Item name={[field.name, 'card_id']} className="cardname">
                                 <TreeSelect
+                                  placeholder="Select"
                                   showSearch
-                                  suffixIcon={<ClearOutlined onClick={(e) => {
-                                    form.setFieldValue([roleField, 'cards', field.name], { card_id: 601011, level: 1 })
-                                  }} />}
+                                  allowClear
+                                  // suffixIcon={<ClearOutlined onClick={(e) => {
+                                  //   form.setFieldValue([roleField, 'cards', field.name], { card_id: 601011, level: 1 })
+                                  // }} />}
                                   treeExpandAction="click"
                                   filterTreeNode={filterTreeNode}
                                   styles={{
@@ -288,10 +293,8 @@ export default function Simulator({ l, form, setResult }) {
         <Button size="large" type="primary" loading={winningDeckProgress.idx !== winningDeckProgress.count} icon={<PlayCircleOutlined />} onClick={async () => {
           await parse_input_ready;
           const game_json = form.getFieldsValue(true);
-          console.log(JSON.stringify(game_json));
-
           let jsonData = _.cloneDeep(game_json);
-          jsonData.a.cards = jsonData.a.cards.filter((item, i) => i < 8).map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.a.cards = jsonData.a.cards.filter((item, i) => item.card_id).map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.b.cards = jsonData.b.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.a.talents.map(t => {
             jsonData.a[t] = 1
@@ -301,6 +304,7 @@ export default function Simulator({ l, form, setResult }) {
           })
           jsonData = parse_input(jsonData);
 
+          console.log(JSON.stringify(jsonData));
           let my_idx = 0;
           let players = [jsonData.a, jsonData.b];
           if (jsonData.a.cultivation < jsonData.b.cultivation) {
@@ -315,11 +319,11 @@ export default function Simulator({ l, form, setResult }) {
           do_riddle({ players: players, my_idx: my_idx }, (riddle, response) => {
             const result = [];
             setWinningDeckProgress(_progress => ({ ..._progress, idx: _progress.idx + 1 }))
-            if (response.winning_decks.length > 0) {
-              result.push("got response with " + response.winning_decks.length + " winning decks");
-            }
+            // if (response.winning_decks.length > 0) {
+            //   result.push("got response with " + response.winning_decks.length + " winning decks");
+            // }
             for (let i = 0; i < response.winning_decks.length; i++) {
-              result.push(...response.winning_logs[i]);
+              // result.push(...response.winning_logs[i]);
               result.push(response.winning_decks[i].map(c => `[${l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '')} ${c.slice(-1)}]`).join(' '));
               result.push(l("Winning margin:") + ' ' + response.winning_margins[i]);
               result.push("-----------");
