@@ -1,4 +1,4 @@
-import React, { Children, useState } from 'react';
+import React, { Children, useState, useRef } from 'react';
 import {
   Button, Space, Avatar, Typography, Input, InputNumber, Form, Radio, ConfigProvider, theme, Select,
   Flex, Row, Col, Rate, TreeSelect
@@ -8,7 +8,7 @@ import { GameState, ready as gamestate_ready } from './engine/gamestate_full_ui.
 import { parse_input, ready as parse_input_ready } from './engine/parse_input_ui.js';
 import talents from './engine/lanke/talents.json';
 import cardnames from './engine/names.json';
-import { do_riddle } from './engine/find_winning_deck.js';
+import { do_riddle, combinationCount } from './engine/find_winning_deck.js';
 import _ from 'lodash';
 import pinyin from "pinyin";
 import Localization from './Localization.json';
@@ -24,6 +24,8 @@ const getPinyin = (text) => {
 // const getLocalizationValue = (value) => localizationMap.get(value) || value;
 
 export default function Simulator({ l, form, setResult }) {
+
+  const [winningDeckProgress, setWinningDeckProgress] = useState({ idx: 0, count: 0 });
 
   Form.useWatch('a', form)
   Form.useWatch('b', form)
@@ -110,7 +112,7 @@ export default function Simulator({ l, form, setResult }) {
             value = 'Relics';
           }
           Localization.mSource.mTerms.find(item => {
-            if(item.Term === value) {
+            if (item.Term === value) {
               value = item.Languages[1];
             }
           })
@@ -121,7 +123,7 @@ export default function Simulator({ l, form, setResult }) {
             value = 'Career_' + part;
           }
           Localization.mSource.mTerms.find(item => {
-            if(item.Term === value) {
+            if (item.Term === value) {
               value = item.Languages[1];
             }
           })
@@ -283,13 +285,13 @@ export default function Simulator({ l, form, setResult }) {
         }
         }>Run</Button>
         <Button size="large" type="primary" icon={<ClearOutlined />} onClick={() => { setResult([]) }}>clean</Button>
-        <Button size="large" type="primary" icon={<PlayCircleOutlined />} onClick={async () => {
+        <Button size="large" type="primary" loading={winningDeckProgress.idx !== winningDeckProgress.count} icon={<PlayCircleOutlined />} onClick={async () => {
           await parse_input_ready;
           const game_json = form.getFieldsValue(true);
           console.log(JSON.stringify(game_json));
 
           let jsonData = _.cloneDeep(game_json);
-          jsonData.a.cards = jsonData.a.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
+          jsonData.a.cards = jsonData.a.cards.filter((item, i) => i < 8).map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.b.cards = jsonData.b.cards.map(item => `${cardnames.find(card => card.id === item.card_id).name} ${item.level}`)
           jsonData.a.talents.map(t => {
             jsonData.a[t] = 1
@@ -305,13 +307,20 @@ export default function Simulator({ l, form, setResult }) {
             players = [jsonData.b, jsonData.a];
             my_idx = 1;
           }
+
+          const count = combinationCount(jsonData.a.cards.length, 8);
+          setWinningDeckProgress({ idx: 0, count });
+
           setResult([l("Winning deck:")]);
           do_riddle({ players: players, my_idx: my_idx }, (riddle, response) => {
             const result = [];
-            // result.push("got response with " + response.winning_decks.length + " winning decks");
+            setWinningDeckProgress(_progress => ({ ..._progress, idx: _progress.idx + 1 }))
+            if (response.winning_decks.length > 0) {
+              result.push("got response with " + response.winning_decks.length + " winning decks");
+            }
             for (let i = 0; i < response.winning_decks.length; i++) {
-              // result.push(...response.winning_logs[i]);
-              result.push(response.winning_decks[i].map(c => `[${l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '')} ${c.slice(-1)}]`).join(' ') );
+              result.push(...response.winning_logs[i]);
+              result.push(response.winning_decks[i].map(c => `[${l(cardnames.find(d => d.id == c.slice(0, -1) + '1')?.name || '')} ${c.slice(-1)}]`).join(' '));
               result.push(l("Winning margin:") + ' ' + response.winning_margins[i]);
               result.push("-----------");
 
@@ -319,7 +328,11 @@ export default function Simulator({ l, form, setResult }) {
             }
           });
         }
-        }>Run (get winning deck)</Button>
+        }>{`Run (${winningDeckProgress.count !== winningDeckProgress.idx ?
+          `${winningDeckProgress.idx} / ${winningDeckProgress.count}` : 'get winning deck'})`}</Button>
+        <Button size="large" type="primary" disabled onClick={() => {
+          
+        }}>Cancel</Button>
         <Button size="large" type="primary" onClick={() => {
           const game_json = form.getFieldsValue(true);
           navigator.clipboard.writeText(JSON.stringify(game_json))
