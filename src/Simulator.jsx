@@ -59,9 +59,6 @@ export default function Simulator({ l, form, setResult }) {
     count: 0,
   });
 
-  Form.useWatch('a', form);
-  Form.useWatch('b', form);
-
   const { a, b } = form.getFieldsValue(['a', 'b']);
 
   const telentsTreeData = Object.keys(talents)
@@ -271,15 +268,31 @@ export default function Simulator({ l, form, setResult }) {
                         key={`a-cards-${i}`}
                         className='deck'
                       >
-                        <Avatar
-                          className='card'
-                          shape='square'
-                          src={
-                            role?.cards[i].card_id
-                              ? `yxp_images/en/${role?.cards[i].card_id + role?.cards[i].level - 1}.png`
-                              : `yxp_images/en/Deviation Syndrome1.png`
+                        <Form.Item
+                          noStyle
+                          shouldUpdate={(prev, curr) =>
+                            prev[roleField].cards?.[i]?.card_id !==
+                              curr[roleField].cards?.[i]?.card_id ||
+                            prev[roleField].cards?.[i]?.level !==
+                              curr[roleField].cards?.[i]?.level
                           }
-                        />
+                        >
+                          {() => {
+                            const cards =
+                              form.getFieldValue([[roleField], 'cards']) || [];
+                            const card = cards[i] || {};
+                            const src = card.card_id
+                              ? `yxp_images/en/${card.card_id + card.level - 1}.png`
+                              : `yxp_images/en/Deviation Syndrome1.png`;
+                            return (
+                              <Avatar
+                                className='card'
+                                shape='square'
+                                src={src}
+                              />
+                            );
+                          }}
+                        </Form.Item>
                         <Form.Item
                           name={[field.name, 'card_id']}
                           className='cardname'
@@ -455,7 +468,7 @@ export default function Simulator({ l, form, setResult }) {
             : 'get winning deck'
         })`}</Button>
         <Button size='large' type='primary' disabled onClick={() => {}}>
-          Cancel
+          Cancel ({l('get winning deck')})
         </Button>
         <Button
           size='large'
