@@ -1,4 +1,4 @@
-import React, { Children, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Button,
   Space,
@@ -37,7 +37,7 @@ import cardnames from './engine/names.json';
 import { do_riddle, combinationCount } from './engine/find_winning_deck.js';
 import _ from 'lodash';
 import pinyin from 'pinyin';
-import Localization from './Localization.json';
+import { getLocalizationTermToEnglish } from './i18n.js';
 
 const getPinyin = (text) => {
   const fullPinyin = pinyin(text, { style: pinyin.STYLE_NORMAL })
@@ -49,17 +49,11 @@ const getPinyin = (text) => {
   return { fullPinyin, firstLetterPinyin };
 };
 
-// const localizationMap = new Map(Localization.mSource.mTerms.map(item => [item.Term, item.Languages[1]]));
-
-// const getLocalizationValue = (value) => localizationMap.get(value) || value;
-
-export default function Simulator({ l, form, setResult }) {
+function Simulator({ l, form, setResult }) {
   const [winningDeckProgress, setWinningDeckProgress] = useState({
     idx: 0,
     count: 0,
   });
-
-  const { a, b } = form.getFieldsValue(['a', 'b']);
 
   const telentsTreeData = Object.keys(talents)
     .filter((item) => talents[item])
@@ -141,22 +135,14 @@ export default function Simulator({ l, form, setResult }) {
           if (part === '9') {
             value = 'Relics';
           }
-          Localization.mSource.mTerms.find((item) => {
-            if (item.Term === value) {
-              value = item.Languages[1];
-            }
-          });
+          value = getLocalizationTermToEnglish(value);
         }
         if (i === 1) {
           value = 'Sect_' + part;
           if (lv1 === '3') {
             value = 'Career_' + part;
           }
-          Localization.mSource.mTerms.find((item) => {
-            if (item.Term === value) {
-              value = item.Languages[1];
-            }
-          });
+          value = getLocalizationTermToEnglish(value);
         }
         if (i === 2) {
           value = 'p' + part;
@@ -199,23 +185,36 @@ export default function Simulator({ l, form, setResult }) {
 
   return (
     <Flex justify='space-between' vertical gap={16}>
-      {[a, b].map((role, i) => {
+      {[0, 1].map((i) => {
         const roleField = i === 0 ? 'a' : 'b';
         return (
           <Space key={'role' + i} className='bg' direction='vertical' size={16}>
             <Space wrap size={16}>
               <Avatar
                 size={80}
-                src={`YiXian-IconsAndNames/characters/${role.character}.png`}
+                src={`YiXian-IconsAndNames/characters/${form.getFieldValue(roleField).character}.png`}
               />
-              {role.talents.map((item) => {
-                const fileName = Object.keys(talents).find(
-                  (t) => talents[t] === item.replace(/p\d+/g, 'p{n}')
-                );
-                return (
-                  <Avatar size={64} src={`yxp_images/talent/${fileName}.png`} />
-                );
-              })}
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return prev[roleField].talents !== curr[roleField].talents;
+                }}
+              >
+                {() =>
+                  form.getFieldValue(roleField).talents.map((item, i) => {
+                    const fileName = Object.keys(talents).find(
+                      (t) => talents[t] === item.replace(/p\d+/g, 'p{n}')
+                    );
+                    return (
+                      <Avatar
+                        key={item}
+                        size={64}
+                        src={`yxp_images/talent/${fileName}.png`}
+                      />
+                    );
+                  })
+                }
+              </Form.Item>
               {/* <Avatar size={64} icon={<img style={{ objectFit: 'contain' }} src='YiXian-IconsAndNames/jobs/elixirist.png' />} /> */}
               <Form.Item
                 label={l('Cultivation')}
@@ -252,7 +251,7 @@ export default function Simulator({ l, form, setResult }) {
                 allowClear
                 multiple
                 treeDefaultExpandAll
-                // onChange={onChange}
+                // onChange={(values) => _.cloneDeep(values)}
                 treeData={telentsTreeData}
               />
             </Form.Item>
@@ -343,7 +342,7 @@ export default function Simulator({ l, form, setResult }) {
             await gamestate_ready;
             await parse_input_ready;
             const game_json = form.getFieldsValue(true);
-            console.log(JSON.stringify(game_json));
+            localStorage.setItem('cardInit', JSON.stringify(game_json));
 
             let jsonData = _.cloneDeep(game_json);
             jsonData.a.cards = jsonData.a.cards
@@ -400,6 +399,7 @@ export default function Simulator({ l, form, setResult }) {
           onClick={async () => {
             await parse_input_ready;
             const game_json = form.getFieldsValue(true);
+            localStorage.setItem('cardInit', JSON.stringify(game_json));
             let jsonData = _.cloneDeep(game_json);
             jsonData.a.cards = jsonData.a.cards
               .filter((item, i) => item.card_id)
@@ -419,7 +419,6 @@ export default function Simulator({ l, form, setResult }) {
             });
             jsonData = parse_input(jsonData);
 
-            console.log(JSON.stringify(jsonData));
             let my_idx = 0;
             let players = [jsonData.a, jsonData.b];
             if (jsonData.a.cultivation < jsonData.b.cultivation) {
@@ -484,3 +483,5 @@ export default function Simulator({ l, form, setResult }) {
     </Flex>
   );
 }
+
+export default Simulator;

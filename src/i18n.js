@@ -91,3 +91,10 @@ export default function i18n(lang) {
   l.cn = cn;
   return l;
 }
+
+const localizationMap = new Map(
+  Localization.mSource.mTerms.map((item) => [item.Term, item.Languages[1]])
+);
+
+export const getLocalizationTermToEnglish = (value) =>
+  localizationMap.get(value) || value;

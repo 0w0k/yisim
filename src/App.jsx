@@ -30,7 +30,9 @@ import _ from 'lodash';
 
 const { Text, Link, Title, Paragraph } = Typography;
 
-const initialValues = cardInit;
+const initialValues = localStorage.getItem('cardInit')
+  ? JSON.parse(localStorage.getItem('cardInit'))
+  : cardInit;
 
 export default function App() {
   const [lang, setLang] = useState(() => {
