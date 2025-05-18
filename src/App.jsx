@@ -100,7 +100,6 @@ export default function App() {
             </Col>
           </Row>
           <Flex wrap gap={16} justify='center' className='footer'>
-            <Text>YiXian ID: 弈仙牌是快乐游戏</Text>
             <Text>QQ: 412386861</Text>
             <Text>Version: v{__APP_VERSION__}</Text>
             <Text>

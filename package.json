@@ -2,7 +2,7 @@
   "name": "yisim",
   "homepage": "https://0w0k.github.io/yisim/",
   "private": true,
-  "version": "0.9",
+  "version": "0.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@leeoniya/ufuzzy": "^1.0.18",
     "antd": "^5.25.0",
     "gh-pages": "^6.3.0",

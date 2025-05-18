@@ -25,6 +25,22 @@ import {
   ClearOutlined,
 } from '@ant-design/icons';
 import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
   GameState,
   ready as gamestate_ready,
 } from './engine/gamestate_full_ui.js';
@@ -38,6 +54,7 @@ import { do_riddle, combinationCount } from './engine/find_winning_deck.js';
 import _ from 'lodash';
 import pinyin from 'pinyin';
 import { getLocalizationTermToEnglish } from './i18n.js';
+import SortableCard from './components/SortableCard.jsx';
 
 const getPinyin = (text) => {
   const fullPinyin = pinyin(text, { style: pinyin.STYLE_NORMAL })
@@ -183,10 +200,44 @@ function Simulator({ l, form, setResult }) {
     return false;
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      // 让键盘移动使用可排序的默认键盘坐标生成器
+      coordinateGetter: undefined,
+    })
+  );
+
   return (
     <Flex justify='space-between' vertical gap={16}>
       {[0, 1].map((i) => {
         const roleField = i === 0 ? 'a' : 'b';
+        const cardsData = form.getFieldValue([roleField, 'cards']) || [];
+        const handleDragEnd = (event) => {
+          const _cardsData = form.getFieldValue([roleField, 'cards']) || [];
+          const { active, over } = event;
+          // active.id 和 over.id 分别是拖拽源与目标位置对应的 id
+          if (active.id !== over?.id) {
+            // 找到被拖拽项的原始索引与目标索引
+            const oldIndex = _cardsData.findIndex(
+              (_, idx) => `card-${roleField}-${idx}` === active.id
+            );
+            const newIndex = _cardsData.findIndex(
+              (_, idx) => `card-${roleField}-${idx}` === over.id
+            );
+            if (oldIndex !== -1 && newIndex !== -1) {
+              // 使用 arrayMove 计算新顺序后的数组
+              const newCards = arrayMove(_cardsData, oldIndex, newIndex);
+              // 更新 Form.List 中的 cards 字段
+              form.setFieldsValue({
+                [roleField]: {
+                  cards: newCards,
+                },
+              });
+            }
+          }
+        };
+
         return (
           <Space key={'role' + i} className='bg' direction='vertical' size={16}>
             <Space wrap size={16}>
@@ -243,93 +294,46 @@ function Simulator({ l, form, setResult }) {
                 style={{ width: '100%' }}
                 maxCount={5}
                 filterTreeNode={filterTreeNode}
-                // value={value}
-                // styles={{
-                //   popup: { root: { maxHeight: 400, overflow: 'auto' } },
-                // }}
-                // placeholder="Please select"
                 allowClear
                 multiple
                 treeDefaultExpandAll
-                // onChange={(values) => _.cloneDeep(values)}
                 treeData={telentsTreeData}
               />
             </Form.Item>
-            <Row wrap className='deck'>
-              <Form.List name={[roleField, 'cards']}>
-                {(fields, { add, remove }) => {
-                  return fields.map((field, i) => {
-                    return (
-                      <Col
-                        flex
-                        xs={12}
-                        md={3}
-                        key={`a-cards-${i}`}
-                        className='deck'
-                      >
-                        <Form.Item
-                          noStyle
-                          shouldUpdate={(prev, curr) =>
-                            prev[roleField].cards?.[i]?.card_id !==
-                              curr[roleField].cards?.[i]?.card_id ||
-                            prev[roleField].cards?.[i]?.level !==
-                              curr[roleField].cards?.[i]?.level
-                          }
-                        >
-                          {() => {
-                            const cards =
-                              form.getFieldValue([[roleField], 'cards']) || [];
-                            const card = cards[i] || {};
-                            const src = card.card_id
-                              ? `yxp_images/en/${card.card_id + card.level - 1}.png`
-                              : `yxp_images/en/Deviation Syndrome1.png`;
-                            return (
-                              <Avatar
-                                className='card'
-                                shape='square'
-                                src={src}
-                              />
-                            );
-                          }}
-                        </Form.Item>
-                        <Form.Item
-                          name={[field.name, 'card_id']}
-                          className='cardname'
-                        >
-                          <TreeSelect
-                            placeholder='Select'
-                            showSearch
-                            allowClear
-                            // suffixIcon={<ClearOutlined onClick={(e) => {
-                            //   form.setFieldValue([roleField, 'cards', field.name], { card_id: 601011, level: 1 })
-                            // }} />}
-                            treeExpandAction='click'
-                            filterTreeNode={filterTreeNode}
-                            styles={{
-                              popup: {
-                                root: {
-                                  maxHeight: 400,
-                                  overflow: 'auto',
-                                  minWidth: 300,
-                                },
-                              },
-                            }}
-                            popupMatchSelectWidth={false}
-                            treeData={buildTree(cardnames)}
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          name={[field.name, 'level']}
-                          className='cardlevel'
-                        >
-                          <Rate tabIndex='-1' count={3} allowClear={false} />
-                        </Form.Item>
-                      </Col>
-                    );
-                  });
-                }}
-              </Form.List>
-            </Row>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              {/* SortableContext 用于告诉 dnd-kit 当前可排序的 items 列表 */}
+              <SortableContext
+                items={cardsData.map((_, idx) => `card-${roleField}-${idx}`)}
+                strategy={rectSortingStrategy}
+              >
+                <Row wrap className='deck'>
+                  <Form.List name={[roleField, 'cards']}>
+                    {(fields, { add, remove }) => {
+                      return fields.map((field, index) => {
+                        const id = `card-${roleField}-${index}`;
+                        return (
+                          <Col flex xs={12} md={3} key={id} className='deck'>
+                            <SortableCard
+                              id={id}
+                              index={index}
+                              field={field}
+                              roleField={roleField}
+                              form={form}
+                              treeData={buildTree(cardnames)}
+                              filterTreeNode={filterTreeNode}
+                            />
+                          </Col>
+                        );
+                      });
+                    }}
+                  </Form.List>
+                </Row>
+              </SortableContext>
+            </DndContext>
           </Space>
         );
       })}
