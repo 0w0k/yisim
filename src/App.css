@@ -36,7 +36,7 @@
 @media (min-width: 992px) {
   .result {
     overflow-y: auto;
-    max-height: 1080px;
+    max-height: 1014px;
   }
 }
 

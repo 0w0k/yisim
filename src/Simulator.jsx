@@ -73,6 +73,8 @@ function Simulator({ l, form, setResult }) {
     count: 0,
   });
 
+  const [showHand, setShowHand] = useState(false);
+
   const telentsTreeData = Object.keys(talents)
     .filter((item) => talents[item])
     .map((item) => {
@@ -317,6 +319,9 @@ function Simulator({ l, form, setResult }) {
                   <Form.List name={[roleField, 'cards']}>
                     {(fields, { add, remove }) => {
                       return fields.map((field, index) => {
+                        if (!showHand && index > 7) {
+                          return;
+                        }
                         const id = `card-${roleField}-${index}`;
                         return (
                           <Col flex xs={6} md={3} key={id} className='deck'>
@@ -473,9 +478,18 @@ function Simulator({ l, form, setResult }) {
             ? `${winningDeckProgress.idx} / ${winningDeckProgress.count}`
             : 'get winning deck'
         })`}</Button>
-        <Button size='large' type='primary' disabled onClick={() => {}}>
-          Cancel ({l('get winning deck')})
+        <Button
+          size='large'
+          type='primary'
+          onClick={() => {
+            setShowHand(!showHand);
+          }}
+        >
+          {showHand ? l('Hidden hand cards') : l('Show hand cards')}
         </Button>
+        {/* <Button size='large' type='primary' disabled onClick={() => {}}>
+          Cancel ({l('get winning deck')})
+        </Button> */}
         <Button
           size='large'
           type='primary'
