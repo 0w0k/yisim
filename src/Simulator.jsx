@@ -31,6 +31,7 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
+  TouchSensor,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -202,9 +203,11 @@ function Simulator({ l, form, setResult }) {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      // 让键盘移动使用可排序的默认键盘坐标生成器
-      coordinateGetter: undefined,
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // 延迟触发
+        tolerance: 5, // 拖动多少像素后才触发
+      },
     })
   );
 
