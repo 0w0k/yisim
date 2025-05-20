@@ -316,7 +316,7 @@ function Simulator({ l, form, setResult }) {
                       return fields.map((field, index) => {
                         const id = `card-${roleField}-${index}`;
                         return (
-                          <Col flex xs={12} md={3} key={id} className='deck'>
+                          <Col flex xs={6} md={3} key={id} className='deck'>
                             <SortableCard
                               id={id}
                               index={index}
