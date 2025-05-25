@@ -288,8 +288,15 @@ function Simulator({ l, form, setResult }) {
                 >
                   <InputNumber changeOnWheel controls={false} />
                 </Form.Item>
-                <Form.Item label={l("HP")} name={[roleField, "hp"]}>
-                  <InputNumber changeOnWheel controls={false} />
+                <Form.Item label={l("HP")}>
+                  <Space.Compact>
+                    <Form.Item name={[roleField, "hp"]} noStyle>
+                      <InputNumber changeOnWheel controls={false} />
+                    </Form.Item>
+                    <Form.Item name={[roleField, "max_hp"]}>
+                      <InputNumber changeOnWheel controls={false} />
+                    </Form.Item>
+                  </Space.Compact>
                 </Form.Item>
                 <Form.Item label={l("Physique")}>
                   <Space.Compact>
@@ -301,6 +308,14 @@ function Simulator({ l, form, setResult }) {
                     </Form.Item>
                   </Space.Compact>
                 </Form.Item>
+                {roleField === "a" && (
+                  <Form.Item
+                    label={l("Round")}
+                    name={[roleField, "round_number"]}
+                  >
+                    <InputNumber changeOnWheel controls={false} />
+                  </Form.Item>
+                )}
               </Space>
               <Form.Item label={l("Talent")} name={[roleField, "talents"]}>
                 <TreeSelect
