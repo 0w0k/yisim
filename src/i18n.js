@@ -63,6 +63,12 @@ export let cn = {
   "winning deck:": "获胜卡组：",
   "winning margin:": "血量差距：",
   Round: "轮次",
+  run: "运行",
+  clean: "清除",
+  riddle: "求解",
+  "show hand cards": "显示手牌",
+  "hidden hand cards": "隐藏手牌",
+  "copy json": "复制代码",
 };
 
 export default function i18n(lang) {

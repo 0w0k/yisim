@@ -423,7 +423,7 @@ function Simulator({ l, form, setResult }) {
               }
             }}
           >
-            Run
+            {l("Run")}
           </Button>
           <Button
             size='large'
@@ -433,7 +433,7 @@ function Simulator({ l, form, setResult }) {
               setResult([]);
             }}
           >
-            clean
+            {l("clean")}
           </Button>
           <Button
             size='large'
@@ -512,11 +512,11 @@ function Simulator({ l, form, setResult }) {
                 });
               }
             }}
-          >{`Run (${
-            winningDeckProgress.count !== winningDeckProgress.idx
+          >
+            {winningDeckProgress.count !== winningDeckProgress.idx
               ? `${winningDeckProgress.idx} / ${winningDeckProgress.count}`
-              : "get winning deck"
-          })`}</Button>
+              : l("Riddle")}
+          </Button>
           <Button
             size='large'
             type='primary'
@@ -537,7 +537,7 @@ function Simulator({ l, form, setResult }) {
               navigator.clipboard.writeText(JSON.stringify(game_json));
             }}
           >
-            Copy JSON
+            {l("Copy JSON")}
           </Button>
         </Flex>
       </Flex>
