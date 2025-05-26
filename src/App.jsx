@@ -100,7 +100,9 @@ export default function App() {
             </Col>
           </Row>
           <Flex wrap gap={16} justify='center' className='footer'>
-            <Text>QQ群: 599092307</Text>
+            <Text>
+              QQ群: <Link href='https://qm.qq.com/q/eLzC02p1BK'>599092307</Link>
+            </Text>
             <Text>Version: v{__APP_VERSION__}</Text>
             <Text>
               Thanks: <Link href='https://github.com/sharpobject'>Sharp</Link> &{" "}
