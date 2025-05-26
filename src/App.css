@@ -56,3 +56,7 @@
   color: unset;
   cursor: pointer;
 }
+
+.ant-avatar {
+  border: 0;
+}

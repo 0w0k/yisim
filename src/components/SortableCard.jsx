@@ -1,8 +1,8 @@
 // src/components/SortableCard.jsx
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Avatar, Form, TreeSelect, Rate, Col } from 'antd';
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Avatar, Form, TreeSelect, Rate, Col } from "antd";
 
 export default function SortableCard({
   id, // 唯一字符串 ID，用于 dnd-kit 排序识别
@@ -29,10 +29,14 @@ export default function SortableCard({
     // transition,
     // 当正在拖拽时可以微调样式，比如将透明度降低
     opacity: isDragging ? 0.5 : 1,
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
   };
 
   // 从 Form 中获取当前的 cards 数组，找到第 index 个卡片
-  const cards = Form.useWatch([roleField, 'cards']) || [];
+  const cards = Form.useWatch([roleField, "cards"]) || [];
   const card = cards[index] || {};
   const src = card.card_id
     ? `yxp_images/en/${card.card_id + card.level - 1}.png`
@@ -60,7 +64,7 @@ export default function SortableCard({
         )}
       </Form.Item>
 
-      <Form.Item name={[field.name, 'card_id']} className='cardname'>
+      <Form.Item name={[field.name, "card_id"]} className='cardname'>
         <TreeSelect
           placeholder='Select'
           showSearch
@@ -69,12 +73,12 @@ export default function SortableCard({
           filterTreeNode={filterTreeNode}
           popupMatchSelectWidth={false}
           treeData={treeData}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         />
       </Form.Item>
 
       {/* 等级评分 */}
-      <Form.Item name={[field.name, 'level']} className='cardlevel'>
+      <Form.Item name={[field.name, "level"]} className='cardlevel'>
         <Rate tabIndex='-1' count={3} allowClear={false} />
       </Form.Item>
     </div>
