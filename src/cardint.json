@@ -4,112 +4,49 @@
   "a_first": true,
   "limit_consumption": true,
   "a": {
-    "character": "mu-yifeng",
-    "cultivation": 2,
-    "hp": 113,
-    "physique": 0,
-    "max_physique": 0,
+    "character": "sw1",
+    "cultivation": 100,
+    "hp": 100,
+    "physique": null,
+    "max_physique": null,
     "cards": [
-      {
-        "card_id": 335011,
-        "level": 2
-      },
-      {
-        "card_id": 144011,
-        "level": 3
-      },
-      {
-        "card_id": 145021,
-        "level": 2
-      },
-      {
-        "card_id": 144031,
-        "level": 3
-      },
-      {
-        "card_id": 144021,
-        "level": 3
-      },
-      {
-        "card_id": 145071,
-        "level": 2
-      },
-      {
-        "card_id": 145071,
-        "level": 1
-      },
-      {
-        "card_id": 145061,
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      },
-      {
-        "level": 1
-      }
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 }
     ],
-    "talents": ["unbounded_qi_stacks"]
+    "talents": [],
+    "max_hp": null
   },
   "b": {
-    "character": "du-lingyuan",
+    "character": "fe1",
     "cultivation": 100,
-    "hp": 119,
-    "physique": 0,
-    "max_physique": 0,
+    "hp": 100,
+    "physique": null,
+    "max_physique": null,
     "cards": [
-      {
-        "card_id": 123111,
-        "level": 3
-      },
-      {
-        "card_id": 125071,
-        "level": 3
-      },
-      {
-        "card_id": 123101,
-        "level": 3
-      },
-      {
-        "card_id": 374011,
-        "level": 2
-      },
-      {
-        "card_id": 372031,
-        "level": 1
-      },
-      {
-        "card_id": 124011,
-        "level": 2
-      },
-      {
-        "card_id": 375021,
-        "level": 3
-      },
-      {
-        "card_id": 624011,
-        "level": 1
-      }
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 },
+      { "card_id": 601011, "level": 1 }
     ],
-    "talents": ["heptastar_soulstat_stacks", "p5_post_strike_stacks"]
+    "talents": []
   },
   "comment": "TODO implement speed comparison and let a_first be null"
 }

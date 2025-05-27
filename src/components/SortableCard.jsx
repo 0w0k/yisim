@@ -1,5 +1,11 @@
 // src/components/SortableCard.jsx
 import React from "react";
+import {
+  UserOutlined,
+  QuestionOutlined,
+  PlayCircleOutlined,
+  ClearOutlined,
+} from "@ant-design/icons";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Avatar, Form, TreeSelect, Rate, Col } from "antd";
@@ -69,6 +75,16 @@ export default function SortableCard({
           placeholder='Select'
           showSearch
           allowClear
+          suffixIcon={
+            <ClearOutlined
+              onClick={(e) => {
+                form.setFieldValue([roleField, "cards", field.name], {
+                  card_id: 601011,
+                  level: 1,
+                });
+              }}
+            />
+          }
           treeExpandAction='click'
           filterTreeNode={filterTreeNode}
           popupMatchSelectWidth={false}

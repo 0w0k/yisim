@@ -24,8 +24,6 @@ export let cn = {
   loss: "消耗",
   lost: "失去",
   wins: "胜利",
-  "mu-yifeng": "牧逸风",
-  "du-lingyuan": "杜伶鸳",
   Talent: "仙命",
   p1: "练气",
   p2: "筑基",
@@ -69,12 +67,13 @@ export let cn = {
   "show hand cards": "显示手牌",
   "hidden hand cards": "隐藏手牌",
   "copy json": "复制代码",
+  Character: "角色",
 };
 
 export default function i18n(lang) {
   Localization.mSource.mTerms.map((item) => {
     if (
-      /CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_/.test(
+      /CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_|CharacterName_/.test(
         item.Term
       )
     ) {

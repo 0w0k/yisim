@@ -46,6 +46,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   GameState,
   ready as gamestate_ready,
+  CHARACTER_ID_TO_NAME,
 } from "./engine/gamestate_full_ui.js";
 import {
   parse_input,
@@ -256,10 +257,21 @@ function Simulator({ l, form, setResult }) {
               size={16}
             >
               <Space wrap size={16}>
-                <Avatar
-                  size={80}
-                  src={`YiXian-IconsAndNames/characters/${form.getFieldValue(roleField).character}.png`}
-                />
+                <Form.Item
+                  noStyle
+                  shouldUpdate={(prev, curr) => {
+                    return (
+                      prev[roleField].character !== curr[roleField].character
+                    );
+                  }}
+                >
+                  {() => (
+                    <Avatar
+                      size={80}
+                      src={`YiXian-IconsAndNames/characters/${CHARACTER_ID_TO_NAME[form.getFieldValue(roleField).character].replace(" ", "-").toLowerCase()}.png`}
+                    />
+                  )}
+                </Form.Item>
                 <Form.Item
                   noStyle
                   shouldUpdate={(prev, curr) => {
@@ -281,7 +293,29 @@ function Simulator({ l, form, setResult }) {
                     })
                   }
                 </Form.Item>
-                {/* <Avatar size={64} icon={<img style={{ objectFit: 'contain' }} src='YiXian-IconsAndNames/jobs/elixirist.png' />} /> */}
+                {/* <Avatar
+                  size={64}
+                  icon={
+                    <img
+                      style={{ objectFit: "contain" }}
+                      src='YiXian-IconsAndNames/jobs/elixirist.png'
+                    />
+                  }
+                /> */}
+              </Space>
+              <Space wrap size={16}>
+                <Form.Item
+                  label={l("Character")}
+                  name={[roleField, "character"]}
+                >
+                  <Select
+                    popupMatchSelectWidth={false}
+                    options={Object.keys(CHARACTER_ID_TO_NAME).map((key) => ({
+                      value: key,
+                      label: l(CHARACTER_ID_TO_NAME[key]),
+                    }))}
+                  />
+                </Form.Item>
                 <Form.Item
                   label={l("Cultivation")}
                   name={[roleField, "cultivation"]}

@@ -60,3 +60,7 @@
 .ant-avatar {
   border: 0;
 }
+
+.ant-input-number {
+  width: 60px;
+}
