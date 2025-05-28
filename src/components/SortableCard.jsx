@@ -18,6 +18,7 @@ export default function SortableCard({
   form, // Ant Design Form 实例
   treeData, // 用于构造 TreeSelect 的数据
   filterTreeNode, // 用于 TreeSelect 的筛选函数
+  l,
 }) {
   // 从 useSortable 中取得可拖拽与放置的属性
   const {
@@ -45,8 +46,8 @@ export default function SortableCard({
   const cards = Form.useWatch([roleField, "cards"]) || [];
   const card = cards[index] || {};
   const src = card.card_id
-    ? `yxp_images/en/${card.card_id + card.level - 1}.png`
-    : `yxp_images/en/Deviation Syndrome1.png`;
+    ? `yxp_images/${l.lang === "en" ? "en" : "zh"}/${card.card_id + card.level - 1}.png`
+    : `yxp_images/${l.lang === "en" ? "en" : "zh"}/Deviation Syndrome1.png`;
 
   return (
     <div ref={setNodeRef} style={style}>

@@ -392,6 +392,7 @@ function Simulator({ l, form, setResult }) {
                                 form={form}
                                 treeData={buildTree(cardnames)}
                                 filterTreeNode={filterTreeNode}
+                                l={l}
                               />
                             </Col>
                           );

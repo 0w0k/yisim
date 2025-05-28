@@ -2,7 +2,7 @@
   "name": "yisim",
   "homepage": "https://0w0k.github.io/yisim/",
   "private": true,
-  "version": "0.12",
+  "version": "0.13",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
