@@ -468,7 +468,7 @@ function Simulator({ l, form, setResult }) {
               setResult([]);
             }}
           >
-            {l("clean")}
+            {l("Clean")}
           </Button>
           <Button
             size='large'
