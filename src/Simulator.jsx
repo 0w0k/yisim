@@ -72,10 +72,11 @@ const getPinyin = (text) => {
 
 function Simulator({ l, form, setResult }) {
   const [messageApi, contextHolder] = message.useMessage();
-  const [winningDeckProgress, setWinningDeckProgress] = useState({
-    idx: 0,
-    count: 0,
-  });
+  const [loading, setLoading] = useState();
+  // const [winningDeckProgress, setWinningDeckProgress] = useState({
+  //   idx: 0,
+  //   count: 0,
+  // });
 
   const [showHand, setShowHand] = useState(false);
 
@@ -473,7 +474,7 @@ function Simulator({ l, form, setResult }) {
           <Button
             size='large'
             type='primary'
-            loading={winningDeckProgress.idx !== winningDeckProgress.count}
+            loading={loading}
             icon={<PlayCircleOutlined />}
             onClick={async () => {
               try {
@@ -506,18 +507,21 @@ function Simulator({ l, form, setResult }) {
                   my_idx = 1;
                 }
 
-                const count = combinationCount(jsonData.a.cards.length, 8);
-                setWinningDeckProgress({ idx: 0, count });
+                // const count = combinationCount(jsonData.a.cards.length, 8);
+                setLoading(true);
 
                 setResult([l("Winning deck:")]);
                 do_riddle(
                   { players: players, my_idx: my_idx },
-                  (riddle, response) => {
+                  (riddle, response, isDone) => {
                     const result = [];
-                    setWinningDeckProgress((_progress) => ({
-                      ..._progress,
-                      idx: _progress.idx + 1,
-                    }));
+                    if (isDone) {
+                      setLoading(false);
+                    }
+                    // setWinningDeckProgress((_progress) => ({
+                    //   ..._progress,
+                    //   idx: _progress.idx + 1,
+                    // }));
                     // if (response.winning_decks.length > 0) {
                     //   result.push("got response with " + response.winning_decks.length + " winning decks");
                     // }
@@ -548,9 +552,7 @@ function Simulator({ l, form, setResult }) {
               }
             }}
           >
-            {winningDeckProgress.count !== winningDeckProgress.idx
-              ? `${winningDeckProgress.idx} / ${winningDeckProgress.count}`
-              : l("Riddle")}
+            {l("Riddle")}
           </Button>
           <Button
             size='large'
