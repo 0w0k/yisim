@@ -218,6 +218,120 @@ function Simulator({ l, form, setResult }) {
     })
   );
 
+  const run = async () => {
+    try {
+      await gamestate_ready;
+      await parse_input_ready;
+      const game_json = form.getFieldsValue(true);
+      localStorage.setItem("cardInit", JSON.stringify(game_json));
+
+      let jsonData = _.cloneDeep(game_json);
+      jsonData.a.hand_cards = [];
+      jsonData.a.cards.forEach((item, i) => {
+        if (!item.card_id) return;
+        const cardname = `${String(item.card_id).slice(0, -1)}${item.level}`;
+        if (i < 8) {
+          jsonData.a.cards[i] = cardname;
+        } else {
+          jsonData.a.hand_cards[8 - i] = cardname;
+        }
+      });
+      jsonData.a.cards = jsonData.a.cards.filter((c, i) => i < 8);
+      jsonData.b.cards = jsonData.b.cards
+        .filter((c, i) => i < 8)
+        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+      jsonData.a.talents.map((t) => {
+        jsonData.a[t] = 1;
+      });
+      jsonData.b.talents.map((t) => {
+        jsonData.b[t] = 1;
+      });
+      // console.log("jsonData", jsonData);
+      // return;
+      jsonData = parse_input(jsonData);
+      const game = new GameState(l);
+
+      if (jsonData.a.cultivation >= jsonData.b.cultivation) {
+        Object.assign(game.players[0], jsonData.a);
+        Object.assign(game.players[1], jsonData.b);
+      } else {
+        Object.assign(game.players[0], jsonData.b);
+        Object.assign(game.players[1], jsonData.a);
+      }
+
+      game.sim_n_turns(64);
+      setResult(game.output);
+    } catch (err) {
+      messageApi.open({
+        type: "error",
+        content: l(err.message),
+      });
+    }
+  };
+
+  const riddle = async () => {
+    try {
+      await parse_input_ready;
+      const game_json = form.getFieldsValue(true);
+      localStorage.setItem("cardInit", JSON.stringify(game_json));
+      let jsonData = _.cloneDeep(game_json);
+      jsonData.a.cards = jsonData.a.cards
+        .filter((item, i) => item.card_id)
+        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+      jsonData.b.cards = jsonData.b.cards.map(
+        (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
+      );
+      jsonData.a.talents.map((t) => {
+        jsonData.a[t] = 1;
+      });
+      jsonData.b.talents.map((t) => {
+        jsonData.b[t] = 1;
+      });
+      jsonData = parse_input(jsonData);
+
+      let my_idx = 0;
+      let players = [jsonData.a, jsonData.b];
+      if (jsonData.a.cultivation < jsonData.b.cultivation) {
+        players = [jsonData.b, jsonData.a];
+        my_idx = 1;
+      }
+
+      setLoading(true);
+
+      setResult([l("Winning deck:")]);
+      do_riddle(
+        { players: players, my_idx: my_idx },
+        (riddle, response, isDone) => {
+          const result = [];
+          if (isDone) {
+            setLoading(false);
+          }
+          for (let i = 0; i < response.winning_decks.length; i++) {
+            result.push(
+              response.winning_decks[i]
+                .map(
+                  (c) =>
+                    `[${l(cardnames.find((d) => d.id == c.slice(0, -1) + "1")?.name || "")} ${c.slice(-1)}]`
+                )
+                .join(" ")
+            );
+            result.push(
+              l("Winning margin:") + " " + response.winning_margins[i]
+            );
+            result.push("-----------");
+
+            setResult((_result) => [..._result, ...result]);
+          }
+        }
+      );
+    } catch (err) {
+      messageApi.open({
+        type: "error",
+        content: l(err.message),
+      });
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -411,53 +525,7 @@ function Simulator({ l, form, setResult }) {
             size='large'
             type='primary'
             icon={<PlayCircleOutlined />}
-            onClick={async () => {
-              try {
-                await gamestate_ready;
-                await parse_input_ready;
-                const game_json = form.getFieldsValue(true);
-                localStorage.setItem("cardInit", JSON.stringify(game_json));
-
-                let jsonData = _.cloneDeep(game_json);
-                jsonData.a.cards = jsonData.a.cards
-                  .filter((c, i) => i < 8)
-                  .map(
-                    (item) =>
-                      `${cardnames.find((card) => card.id === item.card_id).name} ${item.level}`
-                  );
-                jsonData.b.cards = jsonData.b.cards
-                  .filter((c, i) => i < 8)
-                  .map(
-                    (item) =>
-                      `${cardnames.find((card) => card.id === item.card_id).name} ${item.level}`
-                  );
-                jsonData.a.talents.map((t) => {
-                  jsonData.a[t] = 1;
-                });
-                jsonData.b.talents.map((t) => {
-                  jsonData.b[t] = 1;
-                });
-                jsonData = parse_input(jsonData);
-
-                const game = new GameState(l);
-
-                if (jsonData.a.cultivation >= jsonData.b.cultivation) {
-                  Object.assign(game.players[0], jsonData.a);
-                  Object.assign(game.players[1], jsonData.b);
-                } else {
-                  Object.assign(game.players[0], jsonData.b);
-                  Object.assign(game.players[1], jsonData.a);
-                }
-
-                game.sim_n_turns(64);
-                setResult(game.output);
-              } catch (err) {
-                messageApi.open({
-                  type: "error",
-                  content: l(err.message),
-                });
-              }
-            }}
+            onClick={run}
           >
             {l("Run")}
           </Button>
@@ -476,81 +544,7 @@ function Simulator({ l, form, setResult }) {
             type='primary'
             loading={loading}
             icon={<PlayCircleOutlined />}
-            onClick={async () => {
-              try {
-                await parse_input_ready;
-                const game_json = form.getFieldsValue(true);
-                localStorage.setItem("cardInit", JSON.stringify(game_json));
-                let jsonData = _.cloneDeep(game_json);
-                jsonData.a.cards = jsonData.a.cards
-                  .filter((item, i) => item.card_id)
-                  .map(
-                    (item) =>
-                      `${cardnames.find((card) => card.id === item.card_id).name} ${item.level}`
-                  );
-                jsonData.b.cards = jsonData.b.cards.map(
-                  (item) =>
-                    `${cardnames.find((card) => card.id === item.card_id).name} ${item.level}`
-                );
-                jsonData.a.talents.map((t) => {
-                  jsonData.a[t] = 1;
-                });
-                jsonData.b.talents.map((t) => {
-                  jsonData.b[t] = 1;
-                });
-                jsonData = parse_input(jsonData);
-
-                let my_idx = 0;
-                let players = [jsonData.a, jsonData.b];
-                if (jsonData.a.cultivation < jsonData.b.cultivation) {
-                  players = [jsonData.b, jsonData.a];
-                  my_idx = 1;
-                }
-
-                // const count = combinationCount(jsonData.a.cards.length, 8);
-                setLoading(true);
-
-                setResult([l("Winning deck:")]);
-                do_riddle(
-                  { players: players, my_idx: my_idx },
-                  (riddle, response, isDone) => {
-                    const result = [];
-                    if (isDone) {
-                      setLoading(false);
-                    }
-                    // setWinningDeckProgress((_progress) => ({
-                    //   ..._progress,
-                    //   idx: _progress.idx + 1,
-                    // }));
-                    // if (response.winning_decks.length > 0) {
-                    //   result.push("got response with " + response.winning_decks.length + " winning decks");
-                    // }
-                    for (let i = 0; i < response.winning_decks.length; i++) {
-                      // result.push(...response.winning_logs[i]);
-                      result.push(
-                        response.winning_decks[i]
-                          .map(
-                            (c) =>
-                              `[${l(cardnames.find((d) => d.id == c.slice(0, -1) + "1")?.name || "")} ${c.slice(-1)}]`
-                          )
-                          .join(" ")
-                      );
-                      result.push(
-                        l("Winning margin:") + " " + response.winning_margins[i]
-                      );
-                      result.push("-----------");
-
-                      setResult((_result) => [..._result, ...result]);
-                    }
-                  }
-                );
-              } catch (err) {
-                messageApi.open({
-                  type: "error",
-                  content: l(err.message),
-                });
-              }
-            }}
+            onClick={riddle}
           >
             {l("Riddle")}
           </Button>
