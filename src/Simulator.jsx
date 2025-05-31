@@ -220,35 +220,29 @@ function Simulator({ l, form, setResult }) {
 
   const run = async () => {
     try {
-      await gamestate_ready;
-      await parse_input_ready;
       const game_json = form.getFieldsValue(true);
       localStorage.setItem("cardInit", JSON.stringify(game_json));
 
       let jsonData = _.cloneDeep(game_json);
-      jsonData.a.hand_cards = [];
-      jsonData.a.cards.forEach((item, i) => {
-        if (!item.card_id) return;
-        const cardname = `${String(item.card_id).slice(0, -1)}${item.level}`;
-        if (i < 8) {
-          jsonData.a.cards[i] = cardname;
-        } else {
-          jsonData.a.hand_cards[8 - i] = cardname;
-        }
-      });
-      jsonData.a.cards = jsonData.a.cards.filter((c, i) => i < 8);
-      jsonData.b.cards = jsonData.b.cards
-        .filter((c, i) => i < 8)
-        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+
+      jsonData.b.round_number = jsonData.a.round_number;
+
+      jsonData.a.cards = jsonData.a.cards.map(
+        (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
+      );
+      jsonData.b.cards = jsonData.b.cards.map(
+        (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
+      );
       jsonData.a.talents.map((t) => {
         jsonData.a[t] = 1;
       });
       jsonData.b.talents.map((t) => {
         jsonData.b[t] = 1;
       });
-      // console.log("jsonData", jsonData);
-      // return;
-      jsonData = parse_input(jsonData);
+
+      jsonData.a.max_hp = jsonData.a.hp + jsonData.a.physique;
+      jsonData.b.max_hp = jsonData.b.hp + jsonData.b.physique;
+
       const game = new GameState(l);
 
       if (jsonData.a.cultivation >= jsonData.b.cultivation) {
@@ -271,23 +265,28 @@ function Simulator({ l, form, setResult }) {
 
   const riddle = async () => {
     try {
-      await parse_input_ready;
       const game_json = form.getFieldsValue(true);
       localStorage.setItem("cardInit", JSON.stringify(game_json));
       let jsonData = _.cloneDeep(game_json);
+
+      jsonData.b.round_number = jsonData.a.round_number;
+
       jsonData.a.cards = jsonData.a.cards
-        .filter((item, i) => item.card_id)
+        .filter((item) => item.card_id)
         .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
       jsonData.b.cards = jsonData.b.cards.map(
         (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
       );
+
       jsonData.a.talents.map((t) => {
         jsonData.a[t] = 1;
       });
       jsonData.b.talents.map((t) => {
         jsonData.b[t] = 1;
       });
-      jsonData = parse_input(jsonData);
+
+      jsonData.a.max_hp = jsonData.a.hp + jsonData.a.physique;
+      jsonData.b.max_hp = jsonData.b.hp + jsonData.b.physique;
 
       let my_idx = 0;
       let players = [jsonData.a, jsonData.b];
