@@ -227,9 +227,9 @@ function Simulator({ l, form, setResult }) {
 
       jsonData.b.round_number = jsonData.a.round_number;
 
-      jsonData.a.cards = jsonData.a.cards.map(
-        (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
-      );
+      jsonData.a.cards = jsonData.a.cards
+        .filter((item) => item.card_id)
+        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
       jsonData.b.cards = jsonData.b.cards.map(
         (item) => `${String(item.card_id).slice(0, -1)}${item.level}`
       );
