@@ -67,6 +67,7 @@ export let cn = {
   "show hand cards": "显示手牌",
   "hidden hand cards": "隐藏手牌",
   "copy json": "复制代码",
+  "input json": "输入代码",
   Character: "角色",
 };
 

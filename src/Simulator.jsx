@@ -70,8 +70,7 @@ const getPinyin = (text) => {
   return { fullPinyin, firstLetterPinyin };
 };
 
-function Simulator({ l, form, setResult }) {
-  const [messageApi, contextHolder] = message.useMessage();
+const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
   const [loading, setLoading] = useState();
   // const [winningDeckProgress, setWinningDeckProgress] = useState({
   //   idx: 0,
@@ -332,82 +331,75 @@ function Simulator({ l, form, setResult }) {
   };
 
   return (
-    <>
-      {contextHolder}
-      <Flex justify='space-between' vertical gap={16}>
-        {[0, 1].map((i) => {
-          const roleField = i === 0 ? "a" : "b";
-          const cardsData = form.getFieldValue([roleField, "cards"]) || [];
-          const handleDragEnd = (event) => {
-            const _cardsData = form.getFieldValue([roleField, "cards"]) || [];
-            const { active, over } = event;
-            // active.id 和 over.id 分别是拖拽源与目标位置对应的 id
-            if (active.id !== over?.id) {
-              // 找到被拖拽项的原始索引与目标索引
-              const oldIndex = _cardsData.findIndex(
-                (_, idx) => `card-${roleField}-${idx}` === active.id
-              );
-              const newIndex = _cardsData.findIndex(
-                (_, idx) => `card-${roleField}-${idx}` === over.id
-              );
-              if (oldIndex !== -1 && newIndex !== -1) {
-                // 使用 arrayMove 计算新顺序后的数组
-                const newCards = arrayMove(_cardsData, oldIndex, newIndex);
-                // 更新 Form.List 中的 cards 字段
-                form.setFieldsValue({
-                  [roleField]: {
-                    cards: newCards,
-                  },
-                });
-              }
+    <Flex justify='space-between' vertical gap={16}>
+      {[0, 1].map((i) => {
+        const roleField = i === 0 ? "a" : "b";
+        const cardsData = form.getFieldValue([roleField, "cards"]) || [];
+        const handleDragEnd = (event) => {
+          const _cardsData = form.getFieldValue([roleField, "cards"]) || [];
+          const { active, over } = event;
+          // active.id 和 over.id 分别是拖拽源与目标位置对应的 id
+          if (active.id !== over?.id) {
+            // 找到被拖拽项的原始索引与目标索引
+            const oldIndex = _cardsData.findIndex(
+              (_, idx) => `card-${roleField}-${idx}` === active.id
+            );
+            const newIndex = _cardsData.findIndex(
+              (_, idx) => `card-${roleField}-${idx}` === over.id
+            );
+            if (oldIndex !== -1 && newIndex !== -1) {
+              // 使用 arrayMove 计算新顺序后的数组
+              const newCards = arrayMove(_cardsData, oldIndex, newIndex);
+              // 更新 Form.List 中的 cards 字段
+              form.setFieldsValue({
+                [roleField]: {
+                  cards: newCards,
+                },
+              });
             }
-          };
+          }
+        };
 
-          return (
-            <Space
-              key={"role" + i}
-              className='bg'
-              direction='vertical'
-              size={16}
-            >
-              <Space wrap size={16}>
-                <Form.Item
-                  noStyle
-                  shouldUpdate={(prev, curr) => {
-                    return (
-                      prev[roleField].character !== curr[roleField].character
+        return (
+          <Space key={"role" + i} className='bg' direction='vertical' size={16}>
+            <Space wrap size={16}>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return (
+                    prev[roleField].character !== curr[roleField].character
+                  );
+                }}
+              >
+                {() => (
+                  <Avatar
+                    size={80}
+                    src={`YiXian-IconsAndNames/characters/${CHARACTER_ID_TO_NAME[form.getFieldValue(roleField).character].replace(" ", "-").toLowerCase()}.png`}
+                  />
+                )}
+              </Form.Item>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return prev[roleField].talents !== curr[roleField].talents;
+                }}
+              >
+                {() =>
+                  form.getFieldValue(roleField).talents.map((item, i) => {
+                    const fileName = Object.keys(talents).find(
+                      (t) => talents[t] === item.replace(/p\d+/g, "p{n}")
                     );
-                  }}
-                >
-                  {() => (
-                    <Avatar
-                      size={80}
-                      src={`YiXian-IconsAndNames/characters/${CHARACTER_ID_TO_NAME[form.getFieldValue(roleField).character].replace(" ", "-").toLowerCase()}.png`}
-                    />
-                  )}
-                </Form.Item>
-                <Form.Item
-                  noStyle
-                  shouldUpdate={(prev, curr) => {
-                    return prev[roleField].talents !== curr[roleField].talents;
-                  }}
-                >
-                  {() =>
-                    form.getFieldValue(roleField).talents.map((item, i) => {
-                      const fileName = Object.keys(talents).find(
-                        (t) => talents[t] === item.replace(/p\d+/g, "p{n}")
-                      );
-                      return (
-                        <Avatar
-                          key={item}
-                          size={64}
-                          src={`yxp_images/talent/${fileName}.png`}
-                        />
-                      );
-                    })
-                  }
-                </Form.Item>
-                {/* <Avatar
+                    return (
+                      <Avatar
+                        key={item}
+                        size={64}
+                        src={`yxp_images/talent/${fileName}.png`}
+                      />
+                    );
+                  })
+                }
+              </Form.Item>
+              {/* <Avatar
                   size={64}
                   icon={
                     <img
@@ -416,163 +408,164 @@ function Simulator({ l, form, setResult }) {
                     />
                   }
                 /> */}
-              </Space>
-              <Space wrap size={16}>
+            </Space>
+            <Space wrap size={16}>
+              <Form.Item label={l("Character")} name={[roleField, "character"]}>
+                <Select
+                  popupMatchSelectWidth={false}
+                  options={Object.keys(CHARACTER_ID_TO_NAME).map((key) => ({
+                    value: key,
+                    label: l(CHARACTER_ID_TO_NAME[key]),
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item
+                label={l("Cultivation")}
+                name={[roleField, "cultivation"]}
+              >
+                <InputNumber changeOnWheel controls={false} />
+              </Form.Item>
+              <Form.Item label={l("HP")}>
+                <Space.Compact>
+                  <Form.Item name={[roleField, "hp"]} noStyle>
+                    <InputNumber changeOnWheel controls={false} />
+                  </Form.Item>
+                  <Form.Item name={[roleField, "max_hp"]}>
+                    <InputNumber changeOnWheel controls={false} />
+                  </Form.Item>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label={l("Physique")}>
+                <Space.Compact>
+                  <Form.Item name={[roleField, "physique"]} noStyle>
+                    <InputNumber changeOnWheel controls={false} />
+                  </Form.Item>
+                  <Form.Item name={[roleField, "max_physique"]}>
+                    <InputNumber changeOnWheel controls={false} />
+                  </Form.Item>
+                </Space.Compact>
+              </Form.Item>
+              {roleField === "a" && (
                 <Form.Item
-                  label={l("Character")}
-                  name={[roleField, "character"]}
-                >
-                  <Select
-                    popupMatchSelectWidth={false}
-                    options={Object.keys(CHARACTER_ID_TO_NAME).map((key) => ({
-                      value: key,
-                      label: l(CHARACTER_ID_TO_NAME[key]),
-                    }))}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label={l("Cultivation")}
-                  name={[roleField, "cultivation"]}
+                  label={l("Round")}
+                  name={[roleField, "round_number"]}
                 >
                   <InputNumber changeOnWheel controls={false} />
                 </Form.Item>
-                <Form.Item label={l("HP")}>
-                  <Space.Compact>
-                    <Form.Item name={[roleField, "hp"]} noStyle>
-                      <InputNumber changeOnWheel controls={false} />
-                    </Form.Item>
-                    <Form.Item name={[roleField, "max_hp"]}>
-                      <InputNumber changeOnWheel controls={false} />
-                    </Form.Item>
-                  </Space.Compact>
-                </Form.Item>
-                <Form.Item label={l("Physique")}>
-                  <Space.Compact>
-                    <Form.Item name={[roleField, "physique"]} noStyle>
-                      <InputNumber changeOnWheel controls={false} />
-                    </Form.Item>
-                    <Form.Item name={[roleField, "max_physique"]}>
-                      <InputNumber changeOnWheel controls={false} />
-                    </Form.Item>
-                  </Space.Compact>
-                </Form.Item>
-                {roleField === "a" && (
-                  <Form.Item
-                    label={l("Round")}
-                    name={[roleField, "round_number"]}
-                  >
-                    <InputNumber changeOnWheel controls={false} />
-                  </Form.Item>
-                )}
-              </Space>
-              <Form.Item label={l("Talent")} name={[roleField, "talents"]}>
-                <TreeSelect
-                  showSearch
-                  treeCheckable
-                  style={{ width: "100%" }}
-                  maxCount={5}
-                  filterTreeNode={filterTreeNode}
-                  allowClear
-                  multiple
-                  treeDefaultExpandAll
-                  treeData={telentsTreeData}
-                />
-              </Form.Item>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                {/* SortableContext 用于告诉 dnd-kit 当前可排序的 items 列表 */}
-                <SortableContext
-                  items={cardsData.map((_, idx) => `card-${roleField}-${idx}`)}
-                  strategy={rectSortingStrategy}
-                >
-                  <Row wrap className='deck'>
-                    <Form.List name={[roleField, "cards"]}>
-                      {(fields, { add, remove }) => {
-                        return fields.map((field, index) => {
-                          if (!showHand && index > 7) {
-                            return;
-                          }
-                          const id = `card-${roleField}-${index}`;
-                          return (
-                            <Col flex xs={6} md={3} key={id} className='deck'>
-                              <SortableCard
-                                id={id}
-                                index={index}
-                                field={field}
-                                roleField={roleField}
-                                form={form}
-                                treeData={buildTree(cardnames)}
-                                filterTreeNode={filterTreeNode}
-                                l={l}
-                              />
-                            </Col>
-                          );
-                        });
-                      }}
-                    </Form.List>
-                  </Row>
-                </SortableContext>
-              </DndContext>
+              )}
             </Space>
-          );
-        })}
-        <Flex className='bg' gap={16} wrap>
-          <Button
-            size='large'
-            type='primary'
-            icon={<PlayCircleOutlined />}
-            onClick={run}
-          >
-            {l("Run")}
-          </Button>
-          <Button
-            size='large'
-            type='primary'
-            icon={<ClearOutlined />}
-            onClick={() => {
-              setResult([]);
-            }}
-          >
-            {l("Clean")}
-          </Button>
-          <Button
-            size='large'
-            type='primary'
-            loading={loading}
-            icon={<PlayCircleOutlined />}
-            onClick={riddle}
-          >
-            {l("Riddle")}
-          </Button>
-          <Button
-            size='large'
-            type='primary'
-            onClick={() => {
-              setShowHand(!showHand);
-            }}
-          >
-            {showHand ? l("Hidden hand cards") : l("Show hand cards")}
-          </Button>
-          {/* <Button size='large' type='primary' disabled onClick={() => {}}>
-            Cancel ({l('get winning deck')})
-          </Button> */}
-          <Button
-            size='large'
-            type='primary'
-            onClick={() => {
-              const game_json = form.getFieldsValue(true);
-              navigator.clipboard.writeText(JSON.stringify(game_json));
-            }}
-          >
-            {l("Copy JSON")}
-          </Button>
-        </Flex>
+            <Form.Item label={l("Talent")} name={[roleField, "talents"]}>
+              <TreeSelect
+                showSearch
+                treeCheckable
+                style={{ width: "100%" }}
+                maxCount={5}
+                filterTreeNode={filterTreeNode}
+                allowClear
+                multiple
+                treeDefaultExpandAll
+                treeData={telentsTreeData}
+              />
+            </Form.Item>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              {/* SortableContext 用于告诉 dnd-kit 当前可排序的 items 列表 */}
+              <SortableContext
+                items={cardsData.map((_, idx) => `card-${roleField}-${idx}`)}
+                strategy={rectSortingStrategy}
+              >
+                <Row wrap className='deck'>
+                  <Form.List name={[roleField, "cards"]}>
+                    {(fields, { add, remove }) => {
+                      return fields.map((field, index) => {
+                        if (!showHand && index > 7) {
+                          return;
+                        }
+                        const id = `card-${roleField}-${index}`;
+                        return (
+                          <Col flex xs={6} md={3} key={id} className='deck'>
+                            <SortableCard
+                              id={id}
+                              index={index}
+                              field={field}
+                              roleField={roleField}
+                              form={form}
+                              treeData={buildTree(cardnames)}
+                              filterTreeNode={filterTreeNode}
+                              l={l}
+                            />
+                          </Col>
+                        );
+                      });
+                    }}
+                  </Form.List>
+                </Row>
+              </SortableContext>
+            </DndContext>
+          </Space>
+        );
+      })}
+      <Flex className='bg' gap={16} wrap>
+        <Button
+          size='large'
+          type='primary'
+          icon={<PlayCircleOutlined />}
+          onClick={run}
+        >
+          {l("Run")}
+        </Button>
+        <Button
+          size='large'
+          type='primary'
+          icon={<ClearOutlined />}
+          onClick={() => {
+            setResult([]);
+          }}
+        >
+          {l("Clean")}
+        </Button>
+        <Button
+          size='large'
+          type='primary'
+          loading={loading}
+          icon={<PlayCircleOutlined />}
+          onClick={riddle}
+        >
+          {l("Riddle")}
+        </Button>
+        <Button
+          size='large'
+          type='primary'
+          onClick={() => {
+            setShowHand(!showHand);
+          }}
+        >
+          {showHand ? l("Hidden hand cards") : l("Show hand cards")}
+        </Button>
+        <Button
+          size='large'
+          type='primary'
+          onClick={() => {
+            const game_json = form.getFieldsValue(true);
+            navigator.clipboard.writeText(JSON.stringify(game_json));
+          }}
+        >
+          {l("Copy JSON")}
+        </Button>
+        <Button
+          size='large'
+          type='primary'
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+        >
+          {l("Input JSON")}
+        </Button>
       </Flex>
-    </>
+    </Flex>
   );
-}
-
+};
 export default Simulator;

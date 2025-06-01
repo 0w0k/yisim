@@ -15,6 +15,8 @@ import {
   Row,
   Col,
   Empty,
+  Modal,
+  message,
 } from "antd";
 import {
   UserOutlined,
@@ -29,6 +31,7 @@ import "./App.css";
 import _ from "lodash";
 
 const { Text, Link, Title, Paragraph } = Typography;
+const { TextArea } = Input;
 
 const initialValues = localStorage.getItem("cardInit")
   ? JSON.parse(localStorage.getItem("cardInit"))
@@ -44,12 +47,27 @@ export default function App() {
   }, [lang]);
 
   const [form] = Form.useForm();
-
+  const [messageApi, contextHolder] = message.useMessage();
   const [result, setResult] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inputJSONValue, setInputJSONValue] = useState("");
 
   const onLangChange = ({ target: { value } }) => setLang(value);
 
   const l = i18n(lang);
+
+  const inputJSON = () => {
+    try {
+      const gameJSON = JSON.parse(inputJSONValue);
+      form.setFieldsValue(gameJSON);
+      setIsModalOpen(false);
+    } catch (err) {
+      messageApi.open({
+        type: "error",
+        content: l(err.message),
+      });
+    }
+  };
 
   return (
     <div className='app'>
@@ -64,6 +82,19 @@ export default function App() {
           components: {},
         }}
       >
+        {contextHolder}
+        <Modal
+          title='Input JSON'
+          open={isModalOpen}
+          onOk={inputJSON}
+          onCancel={() => setIsModalOpen(false)}
+        >
+          <TextArea
+            rows={16}
+            value={inputJSONValue}
+            onChange={(e) => setInputJSONValue(e.target.value)}
+          />
+        </Modal>
         <Flex vertical>
           <Flex justify='space-between' align='center'>
             <Title level={2}>{l("Yi Xian Simulator")}</Title>
@@ -80,7 +111,13 @@ export default function App() {
                 form={form}
                 initialValues={initialValues}
               >
-                <Simulator l={l} form={form} setResult={setResult} />
+                <Simulator
+                  l={l}
+                  form={form}
+                  setResult={setResult}
+                  setIsModalOpen={setIsModalOpen}
+                  messageApi={messageApi}
+                />
               </Form>
             </Col>
             <Col xs={24} md={24} lg={6}>
