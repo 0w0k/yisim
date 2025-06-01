@@ -84,7 +84,7 @@ export default function App() {
       >
         {contextHolder}
         <Modal
-          title='Input JSON'
+          title={l("Input JSON")}
           open={isModalOpen}
           onOk={inputJSON}
           onCancel={() => setIsModalOpen(false)}

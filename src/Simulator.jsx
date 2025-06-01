@@ -70,14 +70,93 @@ const getPinyin = (text) => {
   return { fullPinyin, firstLetterPinyin };
 };
 
+function buildTree(items, l) {
+  const tree = [];
+
+  for (const item of items) {
+    const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
+
+    // 1. Extract levels
+    const s = String(item.id).padStart(6, "0");
+    const m = s.match(ID_RE);
+    if (!m) continue;
+    const [, lv1, lv2, lv3, lv4, lv5] = m;
+    const levels = [lv1, lv2, lv3];
+    let prefix = "cardtree";
+
+    // 2. Walk/create each level
+    let currentLevel = tree;
+    levels.map((part, i) => {
+      prefix = prefix + part;
+      let value = prefix;
+      if (i === 0) {
+        value = "Subcategory_" + part;
+        if (part === "1") {
+          value = "Sect";
+        }
+        if (part === "3") {
+          value = "Side Jobs";
+        }
+        if (part === "2") {
+          value = "Subcategory_" + 4;
+        }
+        if (part === "4") {
+          value = "Subcategory_" + 2;
+        }
+        if (part === "5") {
+          value = "Subcategory_" + 3;
+        }
+        if (part === "6") {
+          value = "Character specific";
+        }
+        if (part === "7") {
+          value = "Fate Branches";
+        }
+        if (part === "8") {
+          value = "Zongzi";
+        }
+        if (part === "9") {
+          value = "Relics";
+        }
+        value = getLocalizationTermToEnglish(value);
+      }
+      if (i === 1) {
+        value = "Sect_" + part;
+        if (lv1 === "3") {
+          value = "Career_" + part;
+        }
+        value = getLocalizationTermToEnglish(value);
+      }
+      if (i === 2) {
+        value = "p" + part;
+      }
+      let node = currentLevel.find((n) => n.idPart === prefix);
+      if (!node) {
+        node = {
+          idPart: prefix,
+          value: prefix,
+          title: l(value),
+          disabled: true,
+          children: [],
+        };
+        currentLevel.push(node);
+      }
+      currentLevel = node.children;
+    });
+
+    // 3. At the leaf, attach the full item
+    currentLevel.push({ value: item.id, title: l(item.name) });
+  }
+
+  return tree;
+}
+
 const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
   const [loading, setLoading] = useState();
-  // const [winningDeckProgress, setWinningDeckProgress] = useState({
-  //   idx: 0,
-  //   count: 0,
-  // });
 
   const [showHand, setShowHand] = useState(false);
+
+  const cardData = buildTree(cardnames, l);
 
   const telentsTreeData = Object.keys(talents)
     .filter((item) => talents[item])
@@ -110,87 +189,6 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
 
       return result;
     });
-
-  function buildTree(items) {
-    const tree = [];
-
-    for (const item of items) {
-      const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
-
-      // 1. Extract levels
-      const s = String(item.id).padStart(6, "0");
-      const m = s.match(ID_RE);
-      if (!m) continue;
-      const [, lv1, lv2, lv3, lv4, lv5] = m;
-      const levels = [lv1, lv2, lv3];
-      let prefix = "cardtree";
-
-      // 2. Walk/create each level
-      let currentLevel = tree;
-      levels.map((part, i) => {
-        prefix = prefix + part;
-        let value = prefix;
-        if (i === 0) {
-          value = "Subcategory_" + part;
-          if (part === "1") {
-            value = "Sect";
-          }
-          if (part === "3") {
-            value = "Side Jobs";
-          }
-          if (part === "2") {
-            value = "Subcategory_" + 4;
-          }
-          if (part === "4") {
-            value = "Subcategory_" + 2;
-          }
-          if (part === "5") {
-            value = "Subcategory_" + 3;
-          }
-          if (part === "6") {
-            value = "Character specific";
-          }
-          if (part === "7") {
-            value = "Fate Branches";
-          }
-          if (part === "8") {
-            value = "Zongzi";
-          }
-          if (part === "9") {
-            value = "Relics";
-          }
-          value = getLocalizationTermToEnglish(value);
-        }
-        if (i === 1) {
-          value = "Sect_" + part;
-          if (lv1 === "3") {
-            value = "Career_" + part;
-          }
-          value = getLocalizationTermToEnglish(value);
-        }
-        if (i === 2) {
-          value = "p" + part;
-        }
-        let node = currentLevel.find((n) => n.idPart === prefix);
-        if (!node) {
-          node = {
-            idPart: prefix,
-            value: prefix,
-            title: l(value),
-            disabled: true,
-            children: [],
-          };
-          currentLevel.push(node);
-        }
-        currentLevel = node.children;
-      });
-
-      // 3. At the leaf, attach the full item
-      currentLevel.push({ value: item.id, title: l(item.name) });
-    }
-
-    return tree;
-  }
 
   const filterTreeNode = (input, option) => {
     const { fullPinyin, firstLetterPinyin } = getPinyin(option.title);
@@ -445,28 +443,100 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
-              {roleField === "a" && (
-                <Form.Item
-                  label={l("Round")}
-                  name={[roleField, "round_number"]}
-                >
-                  <InputNumber changeOnWheel controls={false} />
-                </Form.Item>
-              )}
+              <Form.Item
+                label={l("Round")}
+                name={[roleField, "round_number"]}
+                hidden={roleField === "b"}
+              >
+                <InputNumber changeOnWheel controls={false} />
+              </Form.Item>
             </Space>
-            <Form.Item label={l("Talent")} name={[roleField, "talents"]}>
-              <TreeSelect
-                showSearch
-                treeCheckable
-                style={{ width: "100%" }}
-                maxCount={5}
-                filterTreeNode={filterTreeNode}
-                allowClear
-                multiple
-                treeDefaultExpandAll
-                treeData={telentsTreeData}
-              />
-            </Form.Item>
+            <Space wrap size={16}>
+              <Form.Item
+                label={l("Talent")}
+                name={[roleField, "talents"]}
+                style={{ minWidth: "300px" }}
+              >
+                <TreeSelect
+                  showSearch
+                  allowClear
+                  treeCheckable
+                  maxCount={5}
+                  filterTreeNode={filterTreeNode}
+                  multiple
+                  treeDefaultExpandAll
+                  treeData={telentsTreeData}
+                />
+              </Form.Item>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return prev[roleField].talents !== curr[roleField].talents;
+                }}
+              >
+                {() => {
+                  return (
+                    <Form.Item
+                      label={l("Five Elements Pure Vase")}
+                      name={[roleField, "five_elements_pure_vase_cards"]}
+                      style={{ minWidth: "300px" }}
+                      hidden={
+                        form
+                          .getFieldValue(roleField)
+                          .talents.findIndex(
+                            (t) => t === "five_elements_pure_vase_stacks"
+                          ) === -1
+                      }
+                    >
+                      <TreeSelect
+                        showSearch
+                        allowClear
+                        treeCheckable
+                        maxCount={3}
+                        filterTreeNode={filterTreeNode}
+                        multiple
+                        treeDefaultExpandAll
+                        treeData={cardData}
+                      />
+                    </Form.Item>
+                  );
+                }}
+              </Form.Item>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return prev[roleField].talents !== curr[roleField].talents;
+                }}
+              >
+                {() => {
+                  return (
+                    <Form.Item
+                      label={l("Swordplay Talent")}
+                      name={[roleField, "swordplay_talent_cards"]}
+                      style={{ minWidth: "300px" }}
+                      hidden={
+                        form
+                          .getFieldValue(roleField)
+                          .talents.findIndex(
+                            (t) => t === "chengyuns_fusion_style_stacks"
+                          ) === -1
+                      }
+                    >
+                      <TreeSelect
+                        showSearch
+                        allowClear
+                        treeCheckable
+                        maxCount={4}
+                        filterTreeNode={filterTreeNode}
+                        multiple
+                        treeDefaultExpandAll
+                        treeData={cardData}
+                      />
+                    </Form.Item>
+                  );
+                }}
+              </Form.Item>
+            </Space>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -493,7 +563,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                               field={field}
                               roleField={roleField}
                               form={form}
-                              treeData={buildTree(cardnames)}
+                              treeData={cardData}
                               filterTreeNode={filterTreeNode}
                               l={l}
                             />
