@@ -9,6 +9,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Avatar, Form, TreeSelect, Rate, Col } from "antd";
+import { swogi } from "../engine/card_json_web";
 
 export default function SortableCard({
   id, // 唯一字符串 ID，用于 dnd-kit 排序识别
@@ -91,6 +92,26 @@ export default function SortableCard({
           popupMatchSelectWidth={false}
           treeData={treeData}
           style={{ width: "100%" }}
+          onChange={(e) => {
+            const level = form.getFieldValue([
+              roleField,
+              "cards",
+              field.name,
+              "level",
+            ]);
+            if (swogi[String(e - 1 + level)].does_not_exist) {
+              form.setFieldValue([roleField, "cards", field.name], {
+                card_id: e,
+                level: swogi[String(e)].does_not_exist
+                  ? swogi[String(e + 1)].does_not_exist
+                    ? swogi[String(e + 2)].does_not_exist
+                      ? 0
+                      : 3
+                    : 2
+                  : 1,
+              });
+            }
+          }}
         />
       </Form.Item>
 

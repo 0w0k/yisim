@@ -1,14 +1,12 @@
 {
-  "permute_a": false,
-  "permute_b": false,
-  "a_first": true,
-  "limit_consumption": true,
   "a": {
     "character": "sw1",
     "cultivation": 100,
     "hp": 100,
+    "max_hp": null,
     "physique": null,
     "max_physique": null,
+    "talents": [],
     "cards": [
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
@@ -26,9 +24,7 @@
       { "level": 1 },
       { "level": 1 },
       { "level": 1 }
-    ],
-    "talents": [],
-    "max_hp": null
+    ]
   },
   "b": {
     "character": "fe1",
@@ -36,6 +32,7 @@
     "hp": 100,
     "physique": null,
     "max_physique": null,
+    "talents": [],
     "cards": [
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
@@ -45,8 +42,6 @@
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 }
-    ],
-    "talents": []
-  },
-  "comment": "TODO implement speed comparison and let a_first be null"
+    ]
+  }
 }
