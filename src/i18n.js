@@ -1,4 +1,5 @@
 import Localization from "./Localization.json";
+import cardnames from "./engine/names.json";
 
 export let cn = {
   "Yi Xian Simulator": "弈仙牌模拟器",
@@ -72,6 +73,10 @@ export let cn = {
 };
 
 export default function i18n(lang) {
+  cardnames.map((card) => {
+    cn[card.name] = card.namecn;
+  });
+
   Localization.mSource.mTerms.map((item) => {
     if (
       /CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_|CharacterName_/.test(
