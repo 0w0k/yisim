@@ -47,6 +47,7 @@ import {
   GameState,
   ready as gamestate_ready,
   CHARACTER_ID_TO_NAME,
+  FATE_TO_CHARACTER_OR_SECT,
 } from "./engine/gamestate_full_ui.js";
 import {
   parse_input,
@@ -69,6 +70,17 @@ const getPinyin = (text) => {
     .join("");
   return { fullPinyin, firstLetterPinyin };
 };
+
+const talentMap = Object.entries(FATE_TO_CHARACTER_OR_SECT).reduce(
+  (acc, [key, value]) => {
+    if (!acc[value]) {
+      acc[value] = [];
+    }
+    acc[value].push(key);
+    return acc;
+  },
+  {}
+);
 
 function buildTree(items, l) {
   const tree = [];
@@ -415,6 +427,12 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                     value: key,
                     label: l(CHARACTER_ID_TO_NAME[key]),
                   }))}
+                  onChange={(e) => {
+                    form.setFieldValue(
+                      [roleField, "talents"],
+                      talentMap[e] || []
+                    );
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -461,7 +479,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   showSearch
                   allowClear
                   treeCheckable
-                  maxCount={5}
+                  maxCount={10}
                   filterTreeNode={filterTreeNode}
                   multiple
                   treeDefaultExpandAll
