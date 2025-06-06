@@ -70,6 +70,9 @@ export let cn = {
   "copy json": "复制代码",
   "input json": "输入代码",
   Character: "角色",
+  "Absorbed Plants": "炼化灵植",
+  " m ": " 幻·",
+  consuming: "消耗",
 };
 
 export default function i18n(lang) {
@@ -93,6 +96,29 @@ export default function i18n(lang) {
       .sort(([k1], [k2]) => k2.length - k1.length)
   );
 
+  // const o = [
+  //   "Secret Sword - Spirit Cloud",
+  //   "Destiny Catastrophe",
+  //   "Xiaoyao - Seamless",
+  //   "Xiaoyao - Breathless",
+  //   "Xiaoyao - Imbalance",
+  //   "Xiaoyao - Irreversible",
+  //   "Azure Dragon Sword Formation",
+  //   "Cloud Sword - Sunset Glow",
+  //   "Dragon Devours Clouds",
+  //   "Throw Petals",
+  //   "Astral Move - Twin Swallows",
+  //   "Water Drop Erosion",
+  //   "Water Spirit -  Leisurely",
+  //   "Wild Crossing Seal",
+  //   "Lava Seal",
+  //   "Boulder Seal",
+  //   "Wave Cutter Seal",
+  // ]
+  //   .map((item) => getLocalizationEnglishToChinese.get(item))
+  //   .join("\n");
+  // console.log(o);
+
   function l(text) {
     if (lang === "cn" && cn[text.toLowerCase()]) {
       return cn[text.toLowerCase()];
@@ -106,6 +132,13 @@ export default function i18n(lang) {
 
 const localizationMap = new Map(
   Localization.mSource.mTerms.map((item) => [item.Term, item.Languages[1]])
+);
+
+export const getLocalizationEnglishToChinese = new Map(
+  Localization.mSource.mTerms.map((item) => [
+    item.Languages[1],
+    item.Languages[0],
+  ])
 );
 
 export const getLocalizationTermToEnglish = (value) =>

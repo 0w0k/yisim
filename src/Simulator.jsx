@@ -554,6 +554,23 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   );
                 }}
               </Form.Item>
+              <Form.Item
+                label={l("Absorbed Plants")}
+                name={[roleField, "absorbed_plants"]}
+                style={{ minWidth: "300px" }}
+              >
+                <TreeSelect
+                  disabled
+                  // showSearch
+                  // allowClear
+                  // treeCheckable
+                  // maxCount={4}
+                  // filterTreeNode={filterTreeNode}
+                  // multiple
+                  // treeDefaultExpandAll
+                  // treeData={cardData}
+                />
+              </Form.Item>
             </Space>
             <DndContext
               sensors={sensors}
