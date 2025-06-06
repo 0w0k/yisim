@@ -62,12 +62,16 @@ import { getLocalizationTermToEnglish } from "./i18n.js";
 import SortableCard from "./components/SortableCard.jsx";
 
 const getPinyin = (text) => {
-  const fullPinyin = pinyin(text, { style: pinyin.STYLE_NORMAL })
-    .flat()
-    .join("");
-  const firstLetterPinyin = pinyin(text, { style: pinyin.STYLE_FIRST_LETTER })
-    .flat()
-    .join("");
+  const fullPinyin = pinyin(text, {
+    style: pinyin.STYLE_NORMAL,
+    heteronym: true,
+    compact: true,
+  }).map((py) => py.join("").replace("•", ""));
+  const firstLetterPinyin = pinyin(text, {
+    style: pinyin.STYLE_FIRST_LETTER,
+    heteronym: true,
+    compact: true,
+  }).map((py) => py.join("").replace("•", ""));
   return { fullPinyin, firstLetterPinyin };
 };
 
@@ -208,8 +212,8 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
 
     if (
       option.title.toLowerCase().includes(lowerInput) || // 中文匹配
-      fullPinyin.includes(lowerInput) || // 全拼匹配
-      firstLetterPinyin.includes(lowerInput) // 首字母匹配
+      fullPinyin.some((py) => py.includes(lowerInput)) || // 全拼匹配
+      firstLetterPinyin.some((py) => py.includes(lowerInput)) // 首字母匹配
     ) {
       return true;
     }
