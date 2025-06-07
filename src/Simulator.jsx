@@ -328,8 +328,11 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                 .join(" ")
             );
             result.push(
-              l("Winning margin:") + " " + response.winning_margins[i]
+              l("Deck Score:") + " " + response.winning_margins[i].toFixed(0)
             );
+            result.push(l("My HP:") + " " + response.winning_info.myHP);
+            result.push(l("Enemy HP:") + " " + response.winning_info.enemyHP);
+            result.push(l("Turns:") + " " + response.winning_info.turns);
             result.push("-----------");
 
             setResult((_result) => [..._result, ...result]);

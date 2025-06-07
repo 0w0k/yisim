@@ -60,7 +60,6 @@ export let cn = {
   Relics: "遗迹法器",
   "Fate Branches": "命运分支/幻",
   "winning deck:": "获胜卡组：",
-  "winning margin:": "血量差距：",
   Round: "轮次",
   run: "运行",
   clean: "清除",
@@ -73,6 +72,10 @@ export let cn = {
   "Absorbed Plants": "炼化灵植",
   " m ": " 幻·",
   consuming: "消耗",
+  "Deck Score:": "卡组评分：",
+  "My HP:": "我的剩余血量：",
+  "Enemy HP:": "对手剩余血量：",
+  "turns:": "结束回合：",
 };
 
 export default function i18n(lang) {
