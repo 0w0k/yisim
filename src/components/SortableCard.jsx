@@ -76,7 +76,7 @@ export default function SortableCard({
         <TreeSelect
           placeholder='Select'
           showSearch
-          // allowClear
+          allowClear
           suffixIcon={
             <ClearOutlined
               onClick={(e) => {
