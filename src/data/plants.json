@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Origin Herb",
+    "namecn": "归元草",
+    "key": "origin_herb"
+  },
+  {
+    "name": "Rock Herb",
+    "namecn": "归岩草",
+    "key": "rock_herb"
+  },
+  {
+    "name": "Shuttle Orchid",
+    "namecn": "金梭兰",
+    "key": "shuttle_orchid"
+  },
+  {
+    "name": "Fire Orchid",
+    "namecn": "火梭兰",
+    "key": "fire_orchid"
+  },
+  {
+    "name": "Lose Power Grass",
+    "namecn": "失力草",
+    "key": "lose_power_grass"
+  },
+  {
+    "name": "Divine Power Grass",
+    "namecn": "神力草",
+    "key": "divine_power_grass"
+  },
+  {
+    "name": "Healing Chamomile",
+    "namecn": "愈甘菊",
+    "key": "healing_chamomile"
+  },
+  {
+    "name": "Clear Chamomile",
+    "namecn": "清甘菊",
+    "key": "clear_chamomile"
+  },
+  {
+    "name": "Shadow Owl Reishi",
+    "namecn": "影枭灵芝",
+    "key": "shadow_owl_reishi"
+  },
+  {
+    "name": "Flying Owl Reishi",
+    "namecn": "飞枭灵芝",
+    "key": "flying_owl_reishi"
+  },
+  {
+    "name": "Toxic Purple Fern",
+    "namecn": "穿肠紫蕨",
+    "key": "toxic_purple_fern"
+  }
+]

@@ -60,6 +60,8 @@ import _ from "lodash";
 import pinyin from "pinyin";
 import { getLocalizationTermToEnglish } from "./i18n.js";
 import SortableCard from "./components/SortableCard.jsx";
+import sideJob from "./data/sideJob.json";
+import plants from "./data/plants.json";
 
 const getPinyin = (text) => {
   const fullPinyin = pinyin(text, {
@@ -111,7 +113,7 @@ function buildTree(items, l) {
           value = "Sect";
         }
         if (part === "3") {
-          value = "Side Jobs";
+          value = "Side Job";
         }
         if (part === "2") {
           value = "Subcategory_" + 4;
@@ -408,6 +410,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                     );
                     return (
                       <Avatar
+                        style={{ marginLeft: 2, marginRight: 2 }}
                         key={item}
                         size={64}
                         src={`yxp_images/talent/${fileName}.png`}
@@ -416,15 +419,32 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   })
                 }
               </Form.Item>
-              {/* <Avatar
-                  size={64}
-                  icon={
-                    <img
-                      style={{ objectFit: "contain" }}
-                      src='YiXian-IconsAndNames/jobs/elixirist.png'
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, curr) => {
+                  return prev[roleField].side_job !== curr[roleField].side_job;
+                }}
+              >
+                {() => {
+                  const fileName = sideJob[
+                    form.getFieldValue(roleField).side_job
+                  ]
+                    ?.replace(" ", "-")
+                    ?.toLowerCase();
+                  if (!fileName) return null;
+                  return (
+                    <Avatar
+                      size={64}
+                      icon={
+                        <img
+                          style={{ objectFit: "contain" }}
+                          src={`YiXian-IconsAndNames/jobs/${sideJob[form.getFieldValue(roleField).side_job].replace(" ", "-").toLowerCase()}.png`}
+                        />
+                      }
                     />
-                  }
-                /> */}
+                  );
+                }}
+              </Form.Item>
             </Space>
             <Space wrap size={16}>
               <Form.Item label={l("Character")} name={[roleField, "character"]}>
@@ -442,29 +462,38 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   }}
                 />
               </Form.Item>
+              <Form.Item label={l("Side job")} name={[roleField, "side_job"]}>
+                <Select
+                  popupMatchSelectWidth={false}
+                  options={Object.keys(sideJob).map((key) => ({
+                    value: key,
+                    label: l(sideJob[key]),
+                  }))}
+                />
+              </Form.Item>
               <Form.Item
                 label={l("Cultivation")}
                 name={[roleField, "cultivation"]}
               >
-                <InputNumber changeOnWheel controls={false} />
+                <InputNumber changeOnWheel />
               </Form.Item>
               <Form.Item label={l("HP")}>
                 <Space.Compact>
                   <Form.Item name={[roleField, "hp"]} noStyle>
-                    <InputNumber changeOnWheel controls={false} />
+                    <InputNumber changeOnWheel />
                   </Form.Item>
                   <Form.Item name={[roleField, "max_hp"]}>
-                    <InputNumber changeOnWheel controls={false} />
+                    <InputNumber changeOnWheel />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
               <Form.Item label={l("Physique")}>
                 <Space.Compact>
                   <Form.Item name={[roleField, "physique"]} noStyle>
-                    <InputNumber changeOnWheel controls={false} />
+                    <InputNumber changeOnWheel />
                   </Form.Item>
                   <Form.Item name={[roleField, "max_physique"]}>
-                    <InputNumber changeOnWheel controls={false} />
+                    <InputNumber changeOnWheel />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -473,7 +502,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                 name={[roleField, "round_number"]}
                 hidden={roleField === "b"}
               >
-                <InputNumber changeOnWheel controls={false} />
+                <InputNumber changeOnWheel />
               </Form.Item>
             </Space>
             <Space wrap size={16}>
@@ -561,23 +590,17 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   );
                 }}
               </Form.Item>
-              <Form.Item
-                label={l("Absorbed Plants")}
-                name={[roleField, "absorbed_plants"]}
-                style={{ minWidth: "300px" }}
-              >
-                <TreeSelect
-                  disabled
-                  // showSearch
-                  // allowClear
-                  // treeCheckable
-                  // maxCount={4}
-                  // filterTreeNode={filterTreeNode}
-                  // multiple
-                  // treeDefaultExpandAll
-                  // treeData={cardData}
-                />
-              </Form.Item>
+              {form.getFieldValue(roleField).side_job === "36" &&
+                plants.map(({ name, key }) => {
+                  return (
+                    <Form.Item
+                      label={l(name)}
+                      name={[roleField, "plants", key]}
+                    >
+                      <InputNumber changeOnWheel />
+                    </Form.Item>
+                  );
+                })}
             </Space>
             <DndContext
               sensors={sensors}

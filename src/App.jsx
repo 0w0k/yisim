@@ -23,6 +23,8 @@ import {
   QuestionOutlined,
   PlayCircleOutlined,
   ClearOutlined,
+  BilibiliOutlined,
+  QqOutlined,
 } from "@ant-design/icons";
 import Simulator from "./Simulator.jsx";
 import i18n from "./i18n.js";
@@ -138,7 +140,17 @@ export default function App() {
           </Row>
           <Flex wrap gap={16} justify='center' className='footer'>
             <Text>
-              QQ群: <Link href='https://qm.qq.com/q/eLzC02p1BK'>599092307</Link>
+              <Link href='https://qm.qq.com/q/eLzC02p1BK'>
+                点击加入QQ群：
+                <QqOutlined />
+                599092307
+              </Link>
+            </Text>
+            <Text>
+              <Link href='https://www.bilibili.com/video/BV13v7sz7E3V'>
+                视频教程：
+                <BilibiliOutlined />
+              </Link>
             </Text>
             <Text>Version: v{__APP_VERSION__}</Text>
             <Text>

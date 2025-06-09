@@ -54,7 +54,7 @@ export let cn = {
   "nuwa stone": "女娲石",
   max: "最大",
   Sect: "门派",
-  "side jobs": "副职",
+  "side job": "副职业",
   "Character specific": "角色专属",
   Zongzi: "粽子",
   Relics: "遗迹法器",
