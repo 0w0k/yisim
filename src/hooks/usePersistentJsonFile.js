@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { openDB } from "idb";
 import cardnames from "../engine/names.json";
 
-function convertBattleLogToSample(battleLogContent) {
+function convertBattleLogToSample(battleLogContent, opponentIndex) {
   const lines = battleLogContent
     .split("\n")
     .map((line) => line.trim())
@@ -10,7 +10,7 @@ function convertBattleLogToSample(battleLogContent) {
   // ignore first line
   const jsonLines = lines.slice(1);
   if (jsonLines.length === 0) {
-    return { rounds: null, status: "waiting" };
+    return {};
   }
 
   try {
@@ -19,45 +19,56 @@ function convertBattleLogToSample(battleLogContent) {
       .sort((a, b) => a.round - b.round)
       .map((round) => {
         return {
-          players: round.players.map((player) => ({
+          players: round.players.map((player, i) => ({
             player_username: player.username,
-            //   destiny: player.life,
-            //   destiny_diff: player.lifeDelta,
             round_number: round.round,
             hp: player.maxHp,
-            //   cultivation: player.level,
             opponent_username: player.opponentUsername,
-            cards: player.usedCards.map((card) => {
-              return {
-                card_id: cardnames.find(
-                  (item) => item.namecn === card.name.replace("•", "·")
-                ).id,
-                level: card.rarity + 1,
-              };
-            }),
+            cards: player.usedCards
+              .map((card) => {
+                // console.log(
+                //   card.name,
+                //   cardnames.find(
+                //     (item) => item.namecn === card.name.replace("•", "·")
+                //   )
+                // );
+                return {
+                  card_id:
+                    cardnames.find(
+                      (item) => item.namecn === card.name.replace("•", "·")
+                    )?.id || null,
+                  level: card.rarity + 1,
+                };
+              })
+              .concat(
+                Array((i === 0 ? 16 : 8) - player.usedCards.length).fill({
+                  level: 1,
+                })
+              ),
           })),
         };
       });
     const lastRoundPlayers = roundsArr[roundsArr.length - 1].players;
-    console.log(roundsArr);
+    if (opponentIndex >= lastRoundPlayers.length) {
+      opponentIndex = 1;
+    }
     return {
-      a: lastRoundPlayers[0],
-      b:
-        lastRoundPlayers.find(
-          (item) =>
-            item.opponent_username === lastRoundPlayers[0].player_username &&
-            item.player_username === lastRoundPlayers[0].opponent_username
-        ) || lastRoundPlayers[1],
+      converted: {
+        a: lastRoundPlayers[0],
+        b: lastRoundPlayers[opponentIndex],
+      },
+      nextOpponentIndex:
+        opponentIndex + 1 === lastRoundPlayers.length ? 1 : opponentIndex + 1,
     };
   } catch (error) {
     console.error("Error converting battle log:", error);
-    return { rounds: {} };
   }
 }
 
 export function usePersistentJsonFile() {
   const [fileHandle, setFileHandle] = useState(null);
   const [data, setData] = useState(null);
+  const [nextOpponentIndex, setNextOpponentIndex] = useState(1);
 
   useEffect(() => {
     (async () => {
@@ -102,9 +113,11 @@ export function usePersistentJsonFile() {
 
     const file = await fileHandle.getFile();
     const text = await file.text();
-    const converted = convertBattleLogToSample(text);
+    const { converted, nextOpponentIndex: _nextOpponentIndex } =
+      convertBattleLogToSample(text, nextOpponentIndex);
     setData(converted);
-  }, [fileHandle]);
+    setNextOpponentIndex(_nextOpponentIndex);
+  }, [fileHandle, nextOpponentIndex]);
 
   return { data, pickFile, readFile, hasHandle: !!fileHandle };
 }
