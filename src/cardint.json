@@ -1,12 +1,10 @@
 {
   "a": {
     "character": "sw1",
-    "cultivation": 100,
-    "hp": 100,
-    "max_hp": null,
+    "cultivation": 40,
+    "hp": 40,
     "physique": null,
     "max_physique": null,
-    "talents": [],
     "cards": [
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
@@ -24,15 +22,33 @@
       { "level": 1 },
       { "level": 1 },
       { "level": 1 }
-    ]
+    ],
+    "talents": [],
+    "max_hp": null,
+    "round_number": null,
+    "five_elements_pure_vase_cards": [],
+    "swordplay_talent_cards": [],
+    "side_job": null,
+    "plants": {
+      "origin_herb": null,
+      "rock_herb": null,
+      "divine_power_grass": null,
+      "shuttle_orchid": null,
+      "fire_orchid": null,
+      "lose_power_grass": null,
+      "healing_chamomile": null,
+      "clear_chamomile": null,
+      "shadow_owl_reishi": null,
+      "flying_owl_reishi": null,
+      "toxic_purple_fern": null
+    }
   },
   "b": {
-    "character": "fe1",
-    "cultivation": 100,
-    "hp": 100,
+    "character": "sw1",
+    "cultivation": 40,
+    "hp": 40,
     "physique": null,
     "max_physique": null,
-    "talents": [],
     "cards": [
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
@@ -42,6 +58,25 @@
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 }
-    ]
+    ],
+    "talents": [],
+    "max_hp": null,
+    "round_number": null,
+    "five_elements_pure_vase_cards": [],
+    "swordplay_talent_cards": [],
+    "side_job": null,
+    "plants": {
+      "origin_herb": null,
+      "rock_herb": null,
+      "divine_power_grass": null,
+      "shuttle_orchid": null,
+      "fire_orchid": null,
+      "lose_power_grass": null,
+      "healing_chamomile": null,
+      "clear_chamomile": null,
+      "shadow_owl_reishi": null,
+      "flying_owl_reishi": null,
+      "toxic_purple_fern": null
+    }
   }
 }

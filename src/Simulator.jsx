@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
   Space,
@@ -62,6 +62,8 @@ import { getLocalizationTermToEnglish } from "./i18n.js";
 import SortableCard from "./components/SortableCard.jsx";
 import sideJob from "./data/sideJob.json";
 import plants from "./data/plants.json";
+import { usePersistentJsonFile } from "./hooks/usePersistentJsonFile";
+import cardInit from "./cardint.json";
 
 const getPinyin = (text) => {
   const fullPinyin = pinyin(text, {
@@ -175,6 +177,8 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
   const [showHand, setShowHand] = useState(false);
 
   const cardData = buildTree(cardnames, l);
+
+  const { data, pickFile, readFile, hasHandle } = usePersistentJsonFile();
 
   const telentsTreeData = Object.keys(talents)
     .filter((item) => talents[item])
@@ -348,6 +352,10 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
       });
     }
   };
+
+  useEffect(() => {
+    form.setFieldsValue(data);
+  }, [data]);
 
   return (
     <Flex justify='space-between' vertical gap={16}>
@@ -590,17 +598,28 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   );
                 }}
               </Form.Item>
-              {form.getFieldValue(roleField).side_job === "36" &&
-                plants.map(({ name, key }) => {
-                  return (
-                    <Form.Item
-                      label={l(name)}
-                      name={[roleField, "plants", key]}
-                    >
-                      <InputNumber changeOnWheel />
-                    </Form.Item>
-                  );
-                })}
+              {plants.map(({ name, key }) => {
+                return (
+                  <Form.Item
+                    noStyle
+                    shouldUpdate={(prev, curr) => {
+                      return (
+                        prev[roleField].side_job !== curr[roleField].side_job
+                      );
+                    }}
+                  >
+                    {() => (
+                      <Form.Item
+                        label={l(name)}
+                        name={[roleField, "plants", key]}
+                        hidden={form.getFieldValue(roleField).side_job !== "36"}
+                      >
+                        <InputNumber changeOnWheel />
+                      </Form.Item>
+                    )}
+                  </Form.Item>
+                );
+              })}
             </Space>
             <DndContext
               sensors={sensors}
@@ -658,6 +677,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
           icon={<ClearOutlined />}
           onClick={() => {
             setResult([]);
+            form.setFieldsValue(cardInit);
           }}
         >
           {l("Clean")}
@@ -699,6 +719,27 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
         >
           {l("Input JSON")}
         </Button>
+        {!hasHandle ? (
+          <Button
+            size='large'
+            type='primary'
+            onClick={() => {
+              pickFile();
+            }}
+          >
+            {l("Import JSON")}
+          </Button>
+        ) : (
+          <Button
+            size='large'
+            type='primary'
+            onClick={() => {
+              readFile();
+            }}
+          >
+            {l("Reload JSON")}
+          </Button>
+        )}
       </Flex>
     </Flex>
   );

@@ -2,7 +2,7 @@
   "name": "yisim",
   "homepage": "https://0w0k.github.io/yisim/",
   "private": true,
-  "version": "0.4",
+  "version": "0.5",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -21,6 +21,7 @@
     "@leeoniya/ufuzzy": "^1.0.18",
     "antd": "^5.25.0",
     "gh-pages": "^6.3.0",
+    "idb": "^8.0.3",
     "lodash": "^4.17.21",
     "pinyin": "^4.0.0-alpha.2",
     "react": "^19.1.0",
