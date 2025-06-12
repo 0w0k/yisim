@@ -1,8 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { openDB } from "idb";
 import cardnames from "../engine/names.json";
+import { CHARACTER_ID_TO_NAME } from "../engine/gamestate_full_ui.js";
+import { getLocalizationEnglishToChinese } from "../i18n.js";
+import getTalentsByCharacter from "../utils/getTalentsByCharacter.js";
 
-function convertBattleLogToSample(battleLogContent, opponentIndex) {
+function findCharacterIdByName(character) {
+  return Object.keys(CHARACTER_ID_TO_NAME).find(
+    (key) =>
+      getLocalizationEnglishToChinese.get(CHARACTER_ID_TO_NAME[key]) ===
+      character
+  );
+}
+
+function convertBattleLogToSample(
+  battleLogContent,
+  opponentIndex,
+  round,
+  username
+) {
   const lines = battleLogContent
     .split("\n")
     .map((line) => line.trim())
@@ -19,19 +35,21 @@ function convertBattleLogToSample(battleLogContent, opponentIndex) {
       .sort((a, b) => a.round - b.round)
       .map((round) => {
         return {
+          round: round.round,
           players: round.players.map((player, i) => ({
-            player_username: player.username,
             round_number: round.round,
+            character: findCharacterIdByName(player.character),
+            talents: getTalentsByCharacter(
+              findCharacterIdByName(player.character)
+            ),
             hp: player.maxHp,
+            cultivation: player.exp,
+            physique: player.tiPo,
+            max_physique: player.maxTiPo,
+            player_username: player.username,
             opponent_username: player.opponentUsername,
             cards: player.usedCards
               .map((card) => {
-                // console.log(
-                //   card.name,
-                //   cardnames.find(
-                //     (item) => item.namecn === card.name.replace("•", "·")
-                //   )
-                // );
                 return {
                   card_id:
                     cardnames.find(
@@ -41,25 +59,38 @@ function convertBattleLogToSample(battleLogContent, opponentIndex) {
                 };
               })
               .concat(
-                Array((i === 0 ? 16 : 8) - player.usedCards.length).fill({
+                Array(
+                  (player.username === username ? 16 : 8) -
+                    player.usedCards.length
+                ).fill({
                   level: 1,
                 })
               ),
           })),
         };
       });
-    const lastRoundPlayers = roundsArr[roundsArr.length - 1].players;
+
+    const lastRoundPlayers =
+      roundsArr.find((item) => item.round === round)?.players ??
+      roundsArr[roundsArr.length - 1].players;
     if (opponentIndex >= lastRoundPlayers.length) {
-      opponentIndex = 1;
+      opponentIndex = 0;
     }
-    return {
+    const myIndex = Math.max(
+      lastRoundPlayers.findIndex(
+        (player) => player.player_username === username
+      ),
+      0
+    );
+    const result = {
       converted: {
-        a: lastRoundPlayers[0],
+        a: lastRoundPlayers[myIndex],
         b: lastRoundPlayers[opponentIndex],
       },
       nextOpponentIndex:
         opponentIndex + 1 === lastRoundPlayers.length ? 1 : opponentIndex + 1,
     };
+    return result;
   } catch (error) {
     console.error("Error converting battle log:", error);
   }
@@ -103,21 +134,25 @@ export function usePersistentJsonFile() {
     return permission === "granted";
   }
 
-  const readFile = useCallback(async () => {
-    if (!fileHandle) return alert("请先选择文件");
+  const readFile = useCallback(
+    (round, username) => async () => {
+      console.log(round);
+      if (!fileHandle) return alert("请先选择文件");
 
-    const ok = await ensurePermission(fileHandle);
-    if (!ok) {
-      return alert("读取被拒，请重新授权或重新选择文件");
-    }
+      const ok = await ensurePermission(fileHandle);
+      if (!ok) {
+        return alert("读取被拒，请重新授权或重新选择文件");
+      }
 
-    const file = await fileHandle.getFile();
-    const text = await file.text();
-    const { converted, nextOpponentIndex: _nextOpponentIndex } =
-      convertBattleLogToSample(text, nextOpponentIndex);
-    setData(converted);
-    setNextOpponentIndex(_nextOpponentIndex);
-  }, [fileHandle, nextOpponentIndex]);
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const { converted, nextOpponentIndex: _nextOpponentIndex } =
+        convertBattleLogToSample(text, nextOpponentIndex, round, username);
+      setData(converted);
+      setNextOpponentIndex(_nextOpponentIndex);
+    },
+    [fileHandle, nextOpponentIndex]
+  );
 
   return { data, pickFile, readFile, hasHandle: !!fileHandle };
 }

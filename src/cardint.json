@@ -1,5 +1,6 @@
 {
   "a": {
+    "player_username": null,
     "character": "sw1",
     "cultivation": 40,
     "hp": 40,
@@ -44,6 +45,7 @@
     }
   },
   "b": {
+    "player_username": null,
     "character": "sw1",
     "cultivation": 40,
     "hp": 40,

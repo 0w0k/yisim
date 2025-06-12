@@ -1,61 +1,36 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Space,
   Avatar,
-  Typography,
-  Input,
   InputNumber,
   Form,
-  Radio,
-  ConfigProvider,
-  theme,
   Select,
   Flex,
   Row,
   Col,
-  Rate,
   TreeSelect,
-  Empty,
-  Alert,
-  message,
+  Input,
+  Typography,
 } from "antd";
-import {
-  UserOutlined,
-  QuestionOutlined,
-  PlayCircleOutlined,
-  ClearOutlined,
-} from "@ant-design/icons";
+import { PlayCircleOutlined, ClearOutlined } from "@ant-design/icons";
 import {
   DndContext,
   closestCenter,
   PointerSensor,
-  KeyboardSensor,
   useSensor,
   useSensors,
   TouchSensor,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  useSortable,
   arrayMove,
-  verticalListSortingStrategy,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  GameState,
-  ready as gamestate_ready,
-  CHARACTER_ID_TO_NAME,
-  FATE_TO_CHARACTER_OR_SECT,
-} from "./engine/gamestate_full_ui.js";
-import {
-  parse_input,
-  ready as parse_input_ready,
-} from "./engine/parse_input_ui.js";
+import { GameState, CHARACTER_ID_TO_NAME } from "./engine/gamestate_full_ui.js";
 import talents from "./engine/lanke/talents.json";
 import cardnames from "./engine/names.json";
-import { do_riddle, combinationCount } from "./engine/find_winning_deck.js";
+import { do_riddle } from "./engine/find_winning_deck.js";
 import _ from "lodash";
 import pinyin from "pinyin";
 import { getLocalizationTermToEnglish } from "./i18n.js";
@@ -64,6 +39,9 @@ import sideJob from "./data/sideJob.json";
 import plants from "./data/plants.json";
 import { usePersistentJsonFile } from "./hooks/usePersistentJsonFile";
 import cardInit from "./cardint.json";
+import getTalentsByCharacter from "./utils/getTalentsByCharacter.js";
+
+const { Text, Link } = Typography;
 
 const getPinyin = (text) => {
   const fullPinyin = pinyin(text, {
@@ -79,17 +57,6 @@ const getPinyin = (text) => {
   return { fullPinyin, firstLetterPinyin };
 };
 
-const talentMap = Object.entries(FATE_TO_CHARACTER_OR_SECT).reduce(
-  (acc, [key, value]) => {
-    if (!acc[value]) {
-      acc[value] = [];
-    }
-    acc[value].push(key);
-    return acc;
-  },
-  {}
-);
-
 function buildTree(items, l) {
   const tree = [];
 
@@ -100,7 +67,7 @@ function buildTree(items, l) {
     const s = String(item.id).padStart(6, "0");
     const m = s.match(ID_RE);
     if (!m) continue;
-    const [, lv1, lv2, lv3, lv4, lv5] = m;
+    const [, lv1, lv2, lv3] = m;
     const levels = [lv1, lv2, lv3];
     let prefix = "cardtree";
 
@@ -405,6 +372,9 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   />
                 )}
               </Form.Item>
+              <Form.Item noStyle name={[roleField, "player_username"]}>
+                <Input placeholder={l("username")} />
+              </Form.Item>
               <Form.Item
                 noStyle
                 shouldUpdate={(prev, curr) => {
@@ -465,7 +435,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   onChange={(e) => {
                     form.setFieldValue(
                       [roleField, "talents"],
-                      talentMap[e] || []
+                      getTalentsByCharacter(e)
                     );
                   }}
                 />
@@ -633,7 +603,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
               >
                 <Row wrap className='deck'>
                   <Form.List name={[roleField, "cards"]}>
-                    {(fields, { add, remove }) => {
+                    {(fields) => {
                       return fields.map((field, index) => {
                         if (!showHand && index > 7) {
                           return;
@@ -730,15 +700,28 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
             {l("Import JSON")}
           </Button>
         ) : (
-          <Button
-            size='large'
-            type='primary'
-            onClick={() => {
-              readFile();
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, curr) => {
+              return (
+                prev.a.round_number !== curr.a.round_number ||
+                prev.a.player_username !== curr.a.player_username
+              );
             }}
           >
-            {l("Reload JSON")}
-          </Button>
+            {() => (
+              <Button
+                size='large'
+                type='primary'
+                onClick={readFile(
+                  form.getFieldValue(["a", "round_number"]),
+                  form.getFieldValue(["a", "player_username"])
+                )}
+              >
+                {l("Reload Battle")}
+              </Button>
+            )}
+          </Form.Item>
         )}
       </Flex>
     </Flex>
