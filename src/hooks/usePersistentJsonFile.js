@@ -36,7 +36,7 @@ function convertBattleLogToSample(
       .map((round) => {
         return {
           round: round.round,
-          players: round.players.map((player, i) => ({
+          players: round.players.map((player) => ({
             round_number: round.round,
             character: findCharacterIdByName(player.character),
             talents: getTalentsByCharacter(
@@ -70,11 +70,10 @@ function convertBattleLogToSample(
         };
       });
 
-    const lastRoundPlayers =
-      roundsArr.find((item) => item.round === round)?.players ??
-      roundsArr[roundsArr.length - 1].players;
-    if (opponentIndex >= lastRoundPlayers.length) {
-      opponentIndex = 0;
+    const lastRoundPlayers = roundsArr[roundsArr.length - 1].players;
+    // roundsArr.find((item) => item.round === round)?.players ??
+    if (opponentIndex >= lastRoundPlayers.length || !opponentIndex) {
+      opponentIndex = 1;
     }
     const myIndex = Math.max(
       lastRoundPlayers.findIndex(
@@ -136,7 +135,6 @@ export function usePersistentJsonFile() {
 
   const readFile = useCallback(
     (round, username) => async () => {
-      console.log(round);
       if (!fileHandle) return alert("请先选择文件");
 
       const ok = await ensurePermission(fileHandle);

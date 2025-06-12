@@ -152,7 +152,7 @@ export default function App() {
                 <BilibiliOutlined />
               </Link>
             </Text>
-            <Text>Version: v{__APP_VERSION__}</Text>
+            <Text>Version: v{window.__APP_VERSION__}</Text>
             <Text>
               Thanks: <Link href='https://github.com/sharpobject'>Sharp</Link> &{" "}
               <Link href='https://github.com/Jayromulus'>Jayromulus</Link>

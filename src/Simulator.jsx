@@ -204,7 +204,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
     })
   );
 
-  const run = async () => {
+  const run = async ({ onlyResult }) => {
     try {
       const game_json = form.getFieldsValue(true);
       localStorage.setItem("cardInit", JSON.stringify(game_json));
@@ -240,6 +240,10 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
       }
 
       game.sim_n_turns(64);
+      if (onlyResult) {
+        setResult(game.output.slice(-1));
+        return;
+      }
       setResult(game.output);
     } catch (err) {
       messageApi.open({
@@ -713,10 +717,15 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
               <Button
                 size='large'
                 type='primary'
-                onClick={readFile(
-                  form.getFieldValue(["a", "round_number"]),
-                  form.getFieldValue(["a", "player_username"])
-                )}
+                onClick={async () => {
+                  await readFile(
+                    form.getFieldValue(["a", "round_number"]),
+                    form.getFieldValue(["a", "player_username"])
+                  )();
+                  setTimeout(() => {
+                    run({ onlyResult: true });
+                  }, 100);
+                }}
               >
                 {l("Reload Battle")}
               </Button>
