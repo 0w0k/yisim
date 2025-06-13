@@ -701,7 +701,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
               pickFile();
             }}
           >
-            {l("Import JSON")}
+            {l("Import Battle")}
           </Button>
         ) : (
           <Form.Item

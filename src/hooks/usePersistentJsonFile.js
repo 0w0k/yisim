@@ -13,85 +13,62 @@ function findCharacterIdByName(character) {
   );
 }
 
-function convertBattleLogToSample(
-  battleLogContent,
-  opponentIndex,
-  round,
-  username
-) {
+function convertBattleLogToSample(battleLogContent, round, username) {
   const lines = battleLogContent
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
-  // ignore first line
+
   const jsonLines = lines.slice(1);
-  if (jsonLines.length === 0) {
-    return {};
-  }
+  if (jsonLines.length === 0) return {};
 
   try {
     const roundsArr = jsonLines
       .map((line) => JSON.parse(line))
       .sort((a, b) => a.round - b.round)
-      .map((round) => {
-        return {
-          round: round.round,
-          players: round.players.map((player) => ({
-            round_number: round.round,
-            character: findCharacterIdByName(player.character),
-            talents: getTalentsByCharacter(
-              findCharacterIdByName(player.character)
+      .map((round) => ({
+        round: round.round,
+        players: round.players.map((player) => ({
+          round_number: round.round,
+          character: findCharacterIdByName(player.character),
+          talents: getTalentsByCharacter(
+            findCharacterIdByName(player.character)
+          ),
+          hp: player.maxHp,
+          cultivation: player.exp,
+          physique: player.tiPo,
+          max_physique: player.maxTiPo,
+          player_username: player.username,
+          opponent_username: player.opponentUsername,
+          cards: player.usedCards
+            .map((card) => ({
+              card_id:
+                cardnames.find(
+                  (item) => item.namecn === card.name.replace("•", "·")
+                )?.id || null,
+              level: card.rarity + 1,
+            }))
+            .concat(
+              Array(
+                (player.username === username ? 16 : 8) -
+                  player.usedCards.length
+              ).fill({ level: 1 })
             ),
-            hp: player.maxHp,
-            cultivation: player.exp,
-            physique: player.tiPo,
-            max_physique: player.maxTiPo,
-            player_username: player.username,
-            opponent_username: player.opponentUsername,
-            cards: player.usedCards
-              .map((card) => {
-                return {
-                  card_id:
-                    cardnames.find(
-                      (item) => item.namecn === card.name.replace("•", "·")
-                    )?.id || null,
-                  level: card.rarity + 1,
-                };
-              })
-              .concat(
-                Array(
-                  (player.username === username ? 16 : 8) -
-                    player.usedCards.length
-                ).fill({
-                  level: 1,
-                })
-              ),
-          })),
-        };
-      });
+        })),
+      }));
 
-    const lastRoundPlayers = roundsArr[roundsArr.length - 1].players;
-    // roundsArr.find((item) => item.round === round)?.players ??
-    if (opponentIndex >= lastRoundPlayers.length || !opponentIndex) {
-      opponentIndex = 1;
-    }
-    const myIndex = Math.max(
-      lastRoundPlayers.findIndex(
-        (player) => player.player_username === username
-      ),
-      0
+    const lastRoundPlayers = roundsArr.at(-1).players;
+    const myIndex = lastRoundPlayers.findIndex(
+      (p) => p.player_username === username
     );
-    const result = {
-      converted: {
-        a: lastRoundPlayers[myIndex],
-        b: lastRoundPlayers[opponentIndex],
-      },
-      nextOpponentIndex:
-        opponentIndex + 1 === lastRoundPlayers.length ? 1 : opponentIndex + 1,
+
+    return {
+      players: lastRoundPlayers,
+      myIndex: myIndex === -1 ? 0 : myIndex,
     };
-    return result;
   } catch (error) {
     console.error("Error converting battle log:", error);
+    return {};
   }
 }
 
@@ -138,16 +115,30 @@ export function usePersistentJsonFile() {
       if (!fileHandle) return alert("请先选择文件");
 
       const ok = await ensurePermission(fileHandle);
-      if (!ok) {
-        return alert("读取被拒，请重新授权或重新选择文件");
-      }
+      if (!ok) return alert("读取被拒，请重新授权或重新选择文件");
 
       const file = await fileHandle.getFile();
       const text = await file.text();
-      const { converted, nextOpponentIndex: _nextOpponentIndex } =
-        convertBattleLogToSample(text, nextOpponentIndex, round, username);
-      setData(converted);
-      setNextOpponentIndex(_nextOpponentIndex);
+      const { players, myIndex } = convertBattleLogToSample(
+        text,
+        round,
+        username
+      );
+      if (!players || players.length < 2) return;
+
+      const opponentIndexes = players
+        .map((_, i) => i)
+        .filter((i) => i !== myIndex);
+
+      const opponentIndex =
+        opponentIndexes[nextOpponentIndex % opponentIndexes.length];
+
+      setData({
+        a: players[myIndex],
+        b: players[opponentIndex],
+      });
+
+      setNextOpponentIndex((prev) => (prev + 1) % opponentIndexes.length);
     },
     [fileHandle, nextOpponentIndex]
   );
