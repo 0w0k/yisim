@@ -13,7 +13,12 @@ function findCharacterIdByName(character) {
   );
 }
 
-function convertBattleLogToSample(battleLogContent, round, username) {
+function convertBattleLogToSample({
+  battleLogContent,
+  round,
+  lockRound,
+  username,
+}) {
   const lines = battleLogContent
     .split("\n")
     .map((line) => line.trim())
@@ -28,36 +33,44 @@ function convertBattleLogToSample(battleLogContent, round, username) {
       .sort((a, b) => a.round - b.round)
       .map((round) => ({
         round: round.round,
-        players: round.players.map((player) => ({
-          round_number: round.round,
-          character: findCharacterIdByName(player.character),
-          talents: getTalentsByCharacter(
-            findCharacterIdByName(player.character)
-          ),
-          hp: player.maxHp,
-          cultivation: player.exp,
-          physique: player.tiPo,
-          max_physique: player.maxTiPo,
-          player_username: player.username,
-          opponent_username: player.opponentUsername,
-          cards: player.usedCards
-            .map((card) => ({
-              card_id:
-                cardnames.find(
-                  (item) => item.namecn === card.name.replace("•", "·")
-                )?.id || null,
-              level: card.rarity + 1,
-            }))
-            .concat(
-              Array(
-                (player.username === username ? 16 : 8) -
-                  player.usedCards.length
-              ).fill({ level: 1 })
+        players: round.players.map((player) => {
+          const result = {
+            round_number: round.round,
+            character: findCharacterIdByName(player.character),
+            talents: getTalentsByCharacter(
+              findCharacterIdByName(player.character)
             ),
-        })),
+            hp: player.maxHp,
+            cultivation: player.exp,
+            physique: player.tiPo,
+            max_physique: player.maxTiPo,
+            player_username: player.username,
+            opponent_username: player.opponentUsername,
+            cards: player.usedCards
+              .map((card) => ({
+                card_id:
+                  cardnames.find(
+                    (item) => item.namecn === card.name.replace("•", "·")
+                  )?.id || null,
+                level: card.rarity + 1,
+              }))
+              .concat(
+                Array(
+                  (player.username === username ? 16 : 8) -
+                    player.usedCards.length
+                ).fill({ level: 1 })
+              ),
+          };
+          if (lockRound && player.username === username) {
+            delete result.talents;
+          }
+          return result;
+        }),
       }));
 
-    const lastRoundPlayers = roundsArr.at(-1).players;
+    const lastRoundPlayers =
+      (lockRound && roundsArr.find((item) => item.round === round)?.players) ||
+      roundsArr.at(-1).players;
     const myIndex = lastRoundPlayers.findIndex(
       (p) => p.player_username === username
     );
@@ -111,35 +124,38 @@ export function usePersistentJsonFile() {
   }
 
   const readFile = useCallback(
-    (round, username) => async () => {
-      if (!fileHandle) return alert("请先选择文件");
+    ({ round, username, lockRound }) =>
+      async () => {
+        if (!fileHandle) return alert("请先选择文件");
 
-      const ok = await ensurePermission(fileHandle);
-      if (!ok) return alert("读取被拒，请重新授权或重新选择文件");
+        const ok = await ensurePermission(fileHandle);
+        if (!ok) return alert("读取被拒，请重新授权或重新选择文件");
 
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const { players, myIndex } = convertBattleLogToSample(
-        text,
-        round,
-        username
-      );
-      if (!players || players.length < 2) return;
+        const file = await fileHandle.getFile();
+        const battleLogContent = await file.text();
 
-      const opponentIndexes = players
-        .map((_, i) => i)
-        .filter((i) => i !== myIndex);
+        const { players, myIndex } = convertBattleLogToSample({
+          battleLogContent,
+          round,
+          lockRound,
+          username,
+        });
+        if (!players || players.length < 2) return;
 
-      const opponentIndex =
-        opponentIndexes[nextOpponentIndex % opponentIndexes.length];
+        const opponentIndexes = players
+          .map((_, i) => i)
+          .filter((i) => i !== myIndex);
 
-      setData({
-        a: players[myIndex],
-        b: players[opponentIndex],
-      });
+        const opponentIndex =
+          opponentIndexes[nextOpponentIndex % opponentIndexes.length];
 
-      setNextOpponentIndex((prev) => (prev + 1) % opponentIndexes.length);
-    },
+        setData({
+          a: players[myIndex],
+          b: players[opponentIndex],
+        });
+
+        setNextOpponentIndex((prev) => (prev + 1) % opponentIndexes.length);
+      },
     [fileHandle, nextOpponentIndex]
   );
 
