@@ -6,7 +6,7 @@ export let cn = {
   Cultivation: "修为",
   HP: "生命",
   Physique: "体魄",
-  "Result:": "结果：",
+  Result: "模拟结果",
   turn: "回合",
   begins: "开始",
   player: "玩家",
@@ -76,6 +76,9 @@ export let cn = {
   "My HP:": "我的剩余血量：",
   "Enemy HP:": "对手剩余血量：",
   "turns:": "结束回合：",
+  operation: "操作",
+  cards: "抽牌",
+  "waste card": "置换/炼化",
 };
 
 export default function i18n(lang) {

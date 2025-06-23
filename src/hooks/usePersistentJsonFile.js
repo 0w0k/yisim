@@ -5,6 +5,8 @@ import { CHARACTER_ID_TO_NAME } from "../engine/gamestate_full_ui.js";
 import { getLocalizationEnglishToChinese } from "../i18n.js";
 import getTalentsByCharacter from "../utils/getTalentsByCharacter.js";
 
+const IDB_KEY = "my-json";
+
 function findCharacterIdByName(character) {
   return Object.keys(CHARACTER_ID_TO_NAME).find(
     (key) =>
@@ -97,7 +99,7 @@ export function usePersistentJsonFile() {
           db.createObjectStore("handles");
         },
       });
-      const handle = await db.get("handles", "my-json");
+      const handle = await db.get("handles", IDB_KEY);
       if (handle) setFileHandle(handle);
     })();
   }, []);
@@ -110,7 +112,7 @@ export function usePersistentJsonFile() {
       multiple: false,
     });
     const db = await openDB("fs-handles-db", 1);
-    await db.put("handles", handle, "my-json");
+    await db.put("handles", handle, IDB_KEY);
     setFileHandle(handle);
   }, []);
 
