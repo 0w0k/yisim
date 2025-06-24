@@ -32,6 +32,7 @@ import {
 import Simulator from "./Simulator.jsx";
 import i18n from "./i18n.js";
 import cardInit from "./cardint.json";
+import cardname from "./engine/names.json";
 import "./App.css";
 import { useOperationJsonFile } from "./hooks/useOperationJsonFile.js";
 import _ from "lodash";
@@ -100,16 +101,13 @@ export default function App() {
     5: "green",
   };
 
-  const colorMemo = [
-    "magenta",
-    "red",
-    "volcano",
-    "orange",
-    "gold",
-    "lime",
-    "green",
-    "cyan",
-  ];
+  const getPByName = (name) => {
+    return [
+      +String(
+        cardname.find((card) => card.namecn === name.replace("•", "·"))?.id
+      ).charAt(2),
+    ];
+  };
 
   const operationColumns = [
     {
@@ -188,7 +186,26 @@ export default function App() {
     }
   };
 
-  const MEMO = getMemo(data);
+  const noticeList = (data) => {
+    const MEMO = getMemo(data);
+
+    return [(count) => count < 0, 0, 1].map((f) => {
+      return (
+        <Flex gap={"4px 0"} wrap>
+          {Object.keys(MEMO)
+            .filter((cardname) =>
+              typeof f === "number" ? MEMO[cardname] === f : f(MEMO[cardname])
+            )
+            .sort((a, b) => getPByName(a) - getPByName(b))
+            .map((cardname) => (
+              <Tag key={cardname} color={colorByP[getPByName(cardname)]}>
+                {cardname + " * " + MEMO[cardname]}
+              </Tag>
+            ))}
+        </Flex>
+      );
+    });
+  };
 
   return (
     <div className='app'>
@@ -244,16 +261,8 @@ export default function App() {
                 >
                   <Title level={4}>卡牌记录</Title>
 
-                  <Flex gap={"4px 0"} wrap>
-                    {Object.keys(MEMO)
-                      .filter((cardname) => MEMO[cardname] <= 2)
-                      .sort((a, b) => MEMO[a] - MEMO[b])
-                      .map((cardname) => (
-                        <Tag key={cardname} color={colorMemo[MEMO[cardname]]}>
-                          {cardname + " * " + MEMO[cardname]}
-                        </Tag>
-                      ))}
-                  </Flex>
+                  {noticeList(data)}
+
                   <Table dataSource={data} columns={operationColumns} />
                 </Flex>
               )}

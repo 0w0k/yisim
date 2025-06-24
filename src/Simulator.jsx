@@ -431,6 +431,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
             <Space wrap size={16}>
               <Form.Item label={l("Character")} name={[roleField, "character"]}>
                 <Select
+                  showSearch
                   popupMatchSelectWidth={false}
                   options={Object.keys(CHARACTER_ID_TO_NAME).map((key) => ({
                     value: key,
@@ -446,6 +447,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
               </Form.Item>
               <Form.Item label={l("Side job")} name={[roleField, "side_job"]}>
                 <Select
+                  showSearch
                   popupMatchSelectWidth={false}
                   options={Object.keys(sideJob).map((key) => ({
                     value: key,
