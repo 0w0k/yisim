@@ -98,15 +98,18 @@ export default function App() {
     2: "green",
     3: "blue",
     4: "purple",
-    5: "green",
+    5: "gold",
   };
 
   const getPByName = (name) => {
-    return [
-      +String(
-        cardname.find((card) => card.namecn === name.replace("•", "·"))?.id
-      ).charAt(2),
-    ];
+    const card = cardname.find(
+      (card) => card.namecn === name.replace("•", "·")
+    );
+    return card
+      ? +String(
+          cardname.find((card) => card.namecn === name.replace("•", "·"))?.id
+        ).charAt(2)
+      : -1;
   };
 
   const operationColumns = [

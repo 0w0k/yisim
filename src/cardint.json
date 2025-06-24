@@ -59,7 +59,15 @@
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
       { "card_id": 601011, "level": 1 },
-      { "card_id": 601011, "level": 1 }
+      { "card_id": 601011, "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 },
+      { "level": 1 }
     ],
     "talents": [],
     "max_hp": null,
