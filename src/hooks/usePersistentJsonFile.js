@@ -56,12 +56,7 @@ function convertBattleLogToSample({
                   )?.id || null,
                 level: card.rarity + 1,
               }))
-              .concat(
-                Array(
-                  (player.username === username ? 16 : 8) -
-                    player.usedCards.length
-                ).fill({ level: 1 })
-              ),
+              .concat(Array(16 - player.usedCards.length).fill({ level: 1 })),
           };
           if (lockRound && player.username === username) {
             delete result.talents;

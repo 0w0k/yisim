@@ -112,6 +112,8 @@ export default function App() {
       : -1;
   };
 
+  const MEMO = getMemo(data);
+
   const operationColumns = [
     {
       title: l("Round"),
@@ -140,13 +142,13 @@ export default function App() {
         const { cards, dstCard } = record;
         return dstCard.name ? (
           <Tag color={colorByP[dstCard.level]} key={dstCard.name}>
-            {dstCard.name}
+            {dstCard.name + " * " + MEMO[dstCard.name]}
           </Tag>
         ) : (
           (cards || []).map((card, i) => {
             return (
               <Tag color={colorByP[card.level]} key={card.name + i}>
-                {card.name}
+                {card.name + " * " + MEMO[card.name]}
               </Tag>
             );
           })
@@ -161,7 +163,7 @@ export default function App() {
         if (!card.name) return;
         return (
           <Tag color={colorByP[card.level]} key={card.name}>
-            {card.name}
+            {card.name + " * " + MEMO[card.name]}
           </Tag>
         );
       },
@@ -189,9 +191,7 @@ export default function App() {
     }
   };
 
-  const noticeList = (data) => {
-    const MEMO = getMemo(data);
-
+  const noticeList = () => {
     return [(count) => count < 0, 0, 1].map((f) => {
       return (
         <Flex gap={"4px 0"} wrap>
