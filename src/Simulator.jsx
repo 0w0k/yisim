@@ -61,10 +61,23 @@ function buildTree(items, l) {
   const tree = [];
 
   for (const item of items) {
+    const sid = String(item.id);
+
+    // Dream cards: D-prefix → add under "Dream" category
+    if (sid.startsWith('D')) {
+      let dreamNode = tree.find(n => n.idPart === 'dream');
+      if (!dreamNode) {
+        dreamNode = { idPart: 'dream', value: 'dream', title: l('Fate Branches'), disabled: true, children: [] };
+        tree.push(dreamNode);
+      }
+      dreamNode.children.push({ value: item.id, title: l(item.name) });
+      continue;
+    }
+
     const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
 
     // 1. Extract levels
-    const s = String(item.id).padStart(6, "0");
+    const s = sid.padStart(6, "0");
     const m = s.match(ID_RE);
     if (!m) continue;
     const [, lv1, lv2, lv3] = m;

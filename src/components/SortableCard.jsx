@@ -1,9 +1,6 @@
 // src/components/SortableCard.jsx
 import React from "react";
 import {
-  UserOutlined,
-  QuestionOutlined,
-  PlayCircleOutlined,
   ClearOutlined,
 } from "@ant-design/icons";
 import { useSortable } from "@dnd-kit/sortable";
@@ -34,8 +31,6 @@ export default function SortableCard({
   // 将 transform 对象转换为行内样式字符串
   const style = {
     transform: CSS.Transform.toString(transform),
-    // transition,
-    // 当正在拖拽时可以微调样式，比如将透明度降低
     opacity: isDragging ? 0.5 : 1,
     height: "100%",
     display: "flex",
@@ -46,9 +41,10 @@ export default function SortableCard({
   // 从 Form 中获取当前的 cards 数组，找到第 index 个卡片
   const cards = Form.useWatch([roleField, "cards"]) || [];
   const card = cards[index] || {};
+  const isDream = String(card.card_id).startsWith('D');
   const src = card.card_id
-    ? `yxp_images/${l.lang === "en" ? "en" : "zh"}/${card.card_id + card.level - 1}.png`
-    : `yxp_images/${l.lang === "en" ? "en" : "zh"}/Deviation Syndrome1.png`;
+    ? `yxp_images/${l.lang === "en" ? "en" : "zh"}/${String(card.card_id).slice(0, -1) + card.level}.png`
+    : null;
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -72,6 +68,18 @@ export default function SortableCard({
         )}
       </Form.Item>
 
+      <div className="cardlevel" style={{ textAlign: 'center' }}>
+        <Rate
+          tabIndex='-1'
+          count={isDream ? 5 : 3}
+          allowClear={false}
+          value={card.level}
+          onChange={(newLevel) => {
+            form.setFieldValue([roleField, "cards", field.name, "level"], newLevel);
+          }}
+        />
+      </div>
+
       <Form.Item name={[field.name, "card_id"]} className='cardname'>
         <TreeSelect
           placeholder='Select'
@@ -92,32 +100,23 @@ export default function SortableCard({
           popupMatchSelectWidth={false}
           treeData={treeData}
           style={{ width: "100%" }}
-          onChange={(e) => {
-            const level = form.getFieldValue([
-              roleField,
-              "cards",
-              field.name,
-              "level",
-            ]);
-            if (swogi[String(e - 1 + level)].does_not_exist) {
-              form.setFieldValue([roleField, "cards", field.name], {
-                card_id: e,
-                level: swogi[String(e)].does_not_exist
-                  ? swogi[String(e + 1)].does_not_exist
-                    ? swogi[String(e + 2)].does_not_exist
-                      ? 0
-                      : 3
-                    : 2
-                  : 1,
-              });
+          onChange={(newCardId) => {
+            let lvl = card.level || 1;
+            const newIsDream = String(newCardId).startsWith('D');
+            const oldIsDream = String(card.card_id).startsWith('D');
+            if (newIsDream && !oldIsDream) {
+              lvl = 5;
+            } else {
+              const base = String(newCardId).slice(0, -1);
+              while (lvl > 1 && (!swogi[base + lvl] || swogi[base + lvl].does_not_exist)) lvl--;
+              while (lvl < 5 && (!swogi[base + lvl] || swogi[base + lvl].does_not_exist)) lvl++;
             }
+            form.setFieldValue([roleField, "cards", field.name], {
+              card_id: newCardId,
+              level: lvl,
+            });
           }}
         />
-      </Form.Item>
-
-      {/* 等级评分 */}
-      <Form.Item name={[field.name, "level"]} className='cardlevel'>
-        <Rate tabIndex='-1' count={3} allowClear={false} />
       </Form.Item>
     </div>
   );

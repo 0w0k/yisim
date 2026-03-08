@@ -13,6 +13,12 @@
   cursor: pointer;
 }
 
+.card img {
+  width: 100%;
+  aspect-ratio: 425 / 685;
+  object-fit: contain;
+}
+
 .cardname,
 .cardlevel {
   margin-inline-end: 0 !important;
