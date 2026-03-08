@@ -503,6 +503,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                   filterTreeNode={filterTreeNode}
                   multiple
                   treeDefaultExpandAll
+                  popupClassName="no-motion"
                   treeData={telentsTreeData}
                 />
               </Form.Item>
@@ -534,6 +535,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                         filterTreeNode={filterTreeNode}
                         multiple
                         treeDefaultExpandAll
+                        popupClassName="no-motion"
                         treeData={cardData}
                       />
                     </Form.Item>
@@ -568,6 +570,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                         filterTreeNode={filterTreeNode}
                         multiple
                         treeDefaultExpandAll
+                        popupClassName="no-motion"
                         treeData={cardData}
                       />
                     </Form.Item>
