@@ -165,20 +165,43 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
       return result;
     });
 
-  const filterTreeNode = (input, option) => {
-    const { fullPinyin, firstLetterPinyin } = getPinyin(option.title);
-    const lowerInput = input.toLowerCase();
-
-    if (
-      option.title.toLowerCase().includes(lowerInput) || // 中文匹配
-      fullPinyin.some((py) => py.includes(lowerInput)) || // 全拼匹配
-      firstLetterPinyin.some((py) => py.includes(lowerInput)) // 首字母匹配
-    ) {
-      return true;
+  // Pre-compute pinyin for all titles that appear in tree nodes.
+  // This avoids calling getPinyin() on every keystroke × every option.
+  const pinyinCache = React.useMemo(() => {
+    const cache = {};
+    const cacheTitle = (title) => {
+      if (cache[title]) return;
+      const { fullPinyin, firstLetterPinyin } = getPinyin(title);
+      cache[title] = { lowerTitle: title.toLowerCase(), fullPinyin, firstLetterPinyin };
+    };
+    // Cache card names
+    for (const card of cardnames) {
+      cacheTitle(l(card.name));
     }
+    // Cache talent names
+    for (const key of Object.keys(talents)) {
+      if (!talents[key]) continue;
+      cacheTitle(l(key));
+      if (talents[key].includes("{n}")) {
+        for (const n of [2, 3, 4, 5]) {
+          cacheTitle(`${l(key)} ${l("p" + n)}`);
+        }
+      }
+    }
+    return cache;
+  }, [l]);
 
-    return false;
-  };
+  const filterTreeNode = React.useCallback((input, option) => {
+    const cached = pinyinCache[option.title];
+    if (!cached) {
+      // Fallback for uncached titles (category nodes, etc.)
+      return option.title.toLowerCase().includes(input.toLowerCase());
+    }
+    const lowerInput = input.toLowerCase();
+    return cached.lowerTitle.includes(lowerInput) ||
+           cached.fullPinyin.some((py) => py.includes(lowerInput)) ||
+           cached.firstLetterPinyin.some((py) => py.includes(lowerInput));
+  }, [pinyinCache]);
 
 
   const run = async ({ onlyResult }) => {
