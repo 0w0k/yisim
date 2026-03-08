@@ -81,50 +81,30 @@ export let cn = {
   "waste card": "置换/炼化",
 };
 
+// Build the cn map once at module load, not on every i18n() call
+cardnames.forEach((card) => {
+  cn[card.name] = card.namecn;
+});
+
+Localization.mSource.mTerms.forEach((item) => {
+  if (
+    /CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_|CharacterName_/.test(
+      item.Term
+    )
+  ) {
+    cn[item.Languages[1]] = item.Languages[0];
+  }
+});
+
+cn = Object.fromEntries(
+  Object.entries(cn)
+    .map(([key, value]) => [key.toLowerCase(), value])
+    .sort(([k1], [k2]) => k2.length - k1.length)
+);
+
+const _cache = {};
 export default function i18n(lang) {
-  cardnames.map((card) => {
-    cn[card.name] = card.namecn;
-  });
-
-  Localization.mSource.mTerms.map((item) => {
-    if (
-      /CardName_|Talent_|CardKeyword_|Sect_|Subcategory_|Career_|CharacterName_/.test(
-        item.Term
-      )
-    ) {
-      cn[item.Languages[1]] = item.Languages[0];
-    }
-  });
-
-  cn = Object.fromEntries(
-    Object.entries(cn)
-      .map(([key, value]) => [key.toLowerCase(), value])
-      .sort(([k1], [k2]) => k2.length - k1.length)
-  );
-
-  // const o = [
-  //   "Secret Sword - Spirit Cloud",
-  //   "Destiny Catastrophe",
-  //   "Xiaoyao - Seamless",
-  //   "Xiaoyao - Breathless",
-  //   "Xiaoyao - Imbalance",
-  //   "Xiaoyao - Irreversible",
-  //   "Azure Dragon Sword Formation",
-  //   "Cloud Sword - Sunset Glow",
-  //   "Dragon Devours Clouds",
-  //   "Throw Petals",
-  //   "Astral Move - Twin Swallows",
-  //   "Water Drop Erosion",
-  //   "Water Spirit -  Leisurely",
-  //   "Wild Crossing Seal",
-  //   "Lava Seal",
-  //   "Boulder Seal",
-  //   "Wave Cutter Seal",
-  // ]
-  //   .map((item) => getLocalizationEnglishToChinese.get(item))
-  //   .join("\n");
-  // console.log(o);
-
+  if (_cache[lang]) return _cache[lang];
   function l(text) {
     if (lang === "cn" && cn[text.toLowerCase()]) {
       return cn[text.toLowerCase()];
@@ -133,6 +113,7 @@ export default function i18n(lang) {
   }
   l.lang = lang;
   l.cn = cn;
+  _cache[lang] = l;
   return l;
 }
 
