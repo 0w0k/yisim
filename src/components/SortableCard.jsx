@@ -89,7 +89,7 @@ export default function SortableCard({
           }
           treeExpandAction='click'
           filterTreeNode={filterTreeNode}
-          popupMatchSelectWidth={false}
+          popupMatchSelectWidth={300}
           treeData={treeData}
           style={{ width: "100%" }}
           onChange={(e) => {
