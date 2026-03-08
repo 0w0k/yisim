@@ -14,19 +14,6 @@ import {
   Typography,
 } from "antd";
 import { PlayCircleOutlined, ClearOutlined } from "@ant-design/icons";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  TouchSensor,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
 import { GameState, CHARACTER_ID_TO_NAME } from "./engine/gamestate_full_ui.js";
 import talents from "./engine/lanke/talents.json";
 import cardnames from "./engine/names.json";
@@ -193,15 +180,6 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
     return false;
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 150, // 延迟触发
-        tolerance: 5, // 拖动多少像素后才触发
-      },
-    })
-  );
 
   const run = async ({ onlyResult }) => {
     try {
@@ -332,30 +310,52 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
     <Flex justify='space-between' vertical gap={16}>
       {[0, 1].map((i) => {
         const roleField = i === 0 ? "a" : "b";
-        const cardsData = form.getFieldValue([roleField, "cards"]) || [];
-        const handleDragEnd = (event) => {
-          const _cardsData = form.getFieldValue([roleField, "cards"]) || [];
-          const { active, over } = event;
-          // active.id 和 over.id 分别是拖拽源与目标位置对应的 id
-          if (active.id !== over?.id) {
-            // 找到被拖拽项的原始索引与目标索引
-            const oldIndex = _cardsData.findIndex(
-              (_, idx) => `card-${roleField}-${idx}` === active.id
-            );
-            const newIndex = _cardsData.findIndex(
-              (_, idx) => `card-${roleField}-${idx}` === over.id
-            );
-            if (oldIndex !== -1 && newIndex !== -1) {
-              // 使用 arrayMove 计算新顺序后的数组
-              const newCards = arrayMove(_cardsData, oldIndex, newIndex);
-              // 更新 Form.List 中的 cards 字段
-              form.setFieldsValue({
-                [roleField]: {
-                  cards: newCards,
-                },
-              });
-            }
+        const dragIdxRef = React.useRef(null);
+        const deckRef = React.useRef(null);
+
+        const clearHighlight = () => {
+          if (!deckRef.current) return;
+          for (const el of deckRef.current.querySelectorAll('.drag-over, .drag-source')) {
+            el.classList.remove('drag-over', 'drag-source');
           }
+        };
+
+        const handleDragStart = (idx) => (e) => {
+          dragIdxRef.current = idx;
+          e.dataTransfer.effectAllowed = 'move';
+          requestAnimationFrame(() => {
+            const cols = deckRef.current?.querySelectorAll(':scope > .deck');
+            if (cols?.[idx]) cols[idx].classList.add('drag-source');
+          });
+        };
+
+        const handleDragOver = (idx) => (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          const from = dragIdxRef.current;
+          if (from === null || from === idx) return;
+          const cols = deckRef.current?.querySelectorAll(':scope > .deck');
+          if (!cols) return;
+          for (const el of cols) el.classList.remove('drag-over');
+          cols[idx].classList.add('drag-over');
+        };
+
+        const handleDrop = (idx) => (e) => {
+          e.preventDefault();
+          clearHighlight();
+          const from = dragIdxRef.current;
+          if (from !== null && from !== idx) {
+            const cards = [...(form.getFieldValue([roleField, 'cards']) || [])];
+            const [moved] = cards.splice(from, 1);
+            cards.splice(idx, 0, moved);
+            form.setFieldsValue({ [roleField]: { cards } });
+          }
+          dragIdxRef.current = null;
+        };
+
+        const handleDragEnd = () => {
+          clearHighlight();
+          dragIdxRef.current = null;
         };
 
         return (
@@ -600,17 +600,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                 );
               })}
             </Space>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              {/* SortableContext 用于告诉 dnd-kit 当前可排序的 items 列表 */}
-              <SortableContext
-                items={cardsData.map((_, idx) => `card-${roleField}-${idx}`)}
-                strategy={rectSortingStrategy}
-              >
-                <Row wrap className='deck'>
+                <Row wrap className='deck' ref={deckRef}>
                   <Form.List name={[roleField, "cards"]}>
                     {(fields) => {
                       return fields.map((field, index) => {
@@ -629,6 +619,10 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                               treeData={cardData}
                               filterTreeNode={filterTreeNode}
                               l={l}
+                              onDragStart={handleDragStart(index)}
+                              onDragOver={handleDragOver(index)}
+                              onDrop={handleDrop(index)}
+                              onDragEnd={handleDragEnd}
                             />
                           </Col>
                         );
@@ -636,8 +630,6 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
                     }}
                   </Form.List>
                 </Row>
-              </SortableContext>
-            </DndContext>
           </Space>
         );
       })}
