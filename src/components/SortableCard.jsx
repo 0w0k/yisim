@@ -75,6 +75,10 @@ export default function SortableCard({
           allowClear={false}
           value={card.level}
           onChange={(newLevel) => {
+            if (!card.card_id) return;
+            const base = String(card.card_id).slice(0, -1);
+            const entry = swogi[base + newLevel];
+            if (!entry || entry.does_not_exist) return;
             form.setFieldValue([roleField, "cards", field.name, "level"], newLevel);
           }}
         />

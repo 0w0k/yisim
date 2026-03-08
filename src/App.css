@@ -70,3 +70,9 @@
 .ant-input-number {
   width: 60px;
 }
+
+.ant-tree-select-dropdown .ant-select-tree-node-content-wrapper,
+.ant-tree-select-dropdown .ant-select-tree-node-content-wrapper * {
+  color: rgba(255, 255, 255, 0.85) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+}
