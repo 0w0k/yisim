@@ -45,10 +45,19 @@ export default function SortableCard({
 
   // 从 Form 中获取当前的 cards 数组，找到第 index 个卡片
   const cards = Form.useWatch([roleField, "cards"]) || [];
+
   const card = cards[index] || {};
-  const src = card.card_id
-    ? `yxp_images/${l.lang === "en" ? "en" : "zh"}/${card.card_id + card.level - 1}.png`
-    : `yxp_images/${l.lang === "en" ? "en" : "zh"}/Deviation Syndrome1.png`;
+  const getCardSrc = (card) => {
+    const perfix = `yxp_images/${l.lang === "en" ? "en" : "zh"}/`;
+    if (!card.card_id) {
+      return `${perfix}Deviation Syndrome1.png`;
+    } else if (String(card.card_id).startsWith("D")) {
+      return `${perfix}D${card.card_id.slice(2, 6)}.png`;
+    } else {
+      return `${perfix}${card.card_id + card.level - 1}.png`;
+    }
+  }
+  const src = getCardSrc(card)
 
   return (
     <div ref={setNodeRef} style={style}>

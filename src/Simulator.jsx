@@ -61,10 +61,10 @@ function buildTree(items, l) {
   const tree = [];
 
   for (const item of items) {
-    const ID_RE = /^(\d)(\d)(\d)(\d{2})(\d)$/;
+    const ID_RE = /^(\d|D)(\d)(\d)(\d{2})(\d)$/;
 
     // 1. Extract levels
-    const s = String(item.id).padStart(6, "0");
+    const s = String(item.treeId || item.id).padStart(6, "0");
     const m = s.match(ID_RE);
     if (!m) continue;
     const [, lv1, lv2, lv3] = m;
@@ -105,6 +105,9 @@ function buildTree(items, l) {
         if (part === "9") {
           value = "Relics";
         }
+        if (part === "D") {
+          value = "Dream";
+        }
         value = getLocalizationTermToEnglish(value);
       }
       if (i === 1) {
@@ -138,13 +141,27 @@ function buildTree(items, l) {
   return tree;
 }
 
+const getCardList = (cardnames) => {
+  const list = [];
+  for (const item of cardnames) {
+    const idStr = String(item.id)
+    if (idStr.startsWith("D")) {
+      const treeId = [1,2,3,4,5].map((n) => `${"D" + idStr.slice(2,3) + n + idStr.slice(3,6)}`);
+      list.push(...treeId.map((tid) => ({ ...item, treeId: tid, id: item.id.slice(0, 5) + tid.slice(2,3) })));
+    } else {
+      list.push(item);
+    }
+  }
+  return list;
+};
+
 const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
   const [loading, setLoading] = useState();
   const [showHand, setShowHand] = useState(false);
   const [lockRound, setLockRound] = useState(false);
   const { data, pickFile, readFile, hasHandle } = usePersistentJsonFile();
 
-  const cardData = buildTree(cardnames, l);
+  const cardData = buildTree(getCardList(cardnames), l);
 
   const telentsTreeData = Object.keys(talents)
     .filter((item) => talents[item])
@@ -204,8 +221,9 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
   );
 
   const run = async ({ onlyResult }) => {
-    try {
+    // try {
       const game_json = form.getFieldsValue(true);
+
       localStorage.setItem("cardInit", JSON.stringify(game_json));
 
       let jsonData = _.cloneDeep(game_json);
@@ -214,10 +232,10 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
 
       jsonData.a.cards = jsonData.a.cards
         .filter((item) => item.card_id)
-        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+        .map((item) => String(item.card_id).startsWith("D") ? `${String(item.card_id)}` : `${String(item.card_id).slice(0, -1)}${item.level}`);
       jsonData.b.cards = jsonData.b.cards
         .filter((item) => item.card_id)
-        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+        .map((item) => String(item.card_id).startsWith("D") ? `${String(item.card_id)}` : `${String(item.card_id).slice(0, -1)}${item.level}`);
       jsonData.a.talents.map((t) => {
         jsonData.a[t] = 1;
       });
@@ -227,7 +245,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
 
       jsonData.a.max_hp = jsonData.a.hp + jsonData.a.physique;
       jsonData.b.max_hp = jsonData.b.hp + jsonData.b.physique;
-      // console.log({ jsonData });
+
       const game = new GameState(l);
 
       if (jsonData.a.cultivation >= jsonData.b.cultivation) {
@@ -244,12 +262,12 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
         return;
       }
       setResult(game.output);
-    } catch (err) {
-      messageApi.open({
-        type: "error",
-        content: l(err.message),
-      });
-    }
+    // } catch (err) {
+    //   messageApi.open({
+    //     type: "error",
+    //     content: l(err.message),
+    //   });
+    // }
   };
 
   const riddle = async () => {
@@ -262,10 +280,10 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
 
       jsonData.a.cards = jsonData.a.cards
         .filter((item) => item.card_id)
-        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+        .map((item) => String(item.card_id).startsWith("D") ? `${String(item.card_id)}` : `${String(item.card_id).slice(0, -1)}${item.level}`);
       jsonData.b.cards = jsonData.b.cards
         .filter((item) => item.card_id)
-        .map((item) => `${String(item.card_id).slice(0, -1)}${item.level}`);
+        .map((item) => String(item.card_id).startsWith("D") ? `${String(item.card_id)}` : `${String(item.card_id).slice(0, -1)}${item.level}`);
 
       jsonData.a.talents.map((t) => {
         jsonData.a[t] = 1;
@@ -287,7 +305,7 @@ const Simulator = ({ l, form, setResult, setIsModalOpen, messageApi }) => {
       setLoading(true);
 
       setResult([l("Winning deck:")]);
-      // console.log({ players });
+
       do_riddle(
         { players: players, my_idx: my_idx },
         (riddle, response, isDone) => {
