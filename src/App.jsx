@@ -240,13 +240,13 @@ export default function App() {
           <Flex justify='space-between' align='center'>
             <Title level={2}>{l("Yi Xian Simulator")}</Title>
             <Space>
-              <Button
+              {/* <Button
                 onClick={() => {
                   pickFile();
                 }}
               >
                 {l("Oppration Setting")}
-              </Button>
+              </Button> */}
               <Radio.Group value={lang} onChange={onLangChange}>
                 <Radio.Button value='cn'>中文</Radio.Button>
                 <Radio.Button value='en'>English</Radio.Button>
@@ -255,7 +255,7 @@ export default function App() {
           </Flex>
           <Row gutter={[16, 16]} className='main'>
             <Col xs={24} md={24} lg={18}>
-              {hasHandle && (
+              {/* {hasHandle && (
                 <Flex
                   vertical
                   gap={16}
@@ -268,7 +268,7 @@ export default function App() {
 
                   <Table dataSource={data} columns={operationColumns} />
                 </Flex>
-              )}
+              )} */}
               <Form
                 layout='inline'
                 variant='underlined'
